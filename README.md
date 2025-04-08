@@ -63,7 +63,8 @@ Dopo aver scaricato il WRF:
 
 Ulteriore informazione per la configurazione dei namelist nella [Documentazione](https://www2.mmm.ucar.edu/wrf/users/wrf_users_guide/build/html/namelist_variables.html)
 
-
+### Costruzione macchina Docker 
+Nella cartella `WRF4Salerno` è possibile trovare il Dockerfile per la built di una macchina docker
 
 
 
