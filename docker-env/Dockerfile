@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y \
     git \
     mpich \
     gcc \
-    gfortran \
     g++ \
     libtool \
     automake \
@@ -22,7 +21,9 @@ RUN apt-get update && apt-get install -y \
     m4 \
     grads \
     default-jre \
-    csh
+    unzip \
+    nco \
+    nano
 
 # Create directories
 RUN mkdir -p /wrf 
@@ -30,6 +31,6 @@ RUN mkdir -p /wrf
 
 WORKDIR /wrf
 
-COPY install.sh /wrf/install.sh
+COPY ../download/install_WRF.sh /wrf/install.sh
 
 ENTRYPOINT ["/bin/bash"]

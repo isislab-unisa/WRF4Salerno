@@ -5,17 +5,32 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-Questo progetto ha come obiettivo sviluppare un applicativo in grado di utilizzare il modello [**WRF**](https://github.com/wrf-model/WRF)  per fare una previsione meteo del Golfo di Salerno con una risoluzione delle griglia 1x1km.
+Il progetto ha l'obiettivo di creare una piattaforma in grado di automatizzare l’intero processo di esecuzione di modelli meteorologici ad alta risoluzione per una specifica area geografica.
+In particolare, integra il [**Global Forecast System (GFS)**](https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast) e il [**Weather Research and Forecasting Model (WRF)**](https://github.com/wrf-model/WRF), automatizzando tutte le fasi operative: dal download dei dati globali, alla loro pre-elaborazione e conversione in formati compatibili, fino all'esecuzione delle simulazioni locali ad alta risoluzione.
 
-Per poterlo realizzare deve essere configurato un ambiente docker in cui è possibile lanciare il **WRF** e usare il modello dato in output per ottenere la previsione meteo in formato **.grib2**.
-
+La piattaforma offre inoltre un sistema di visualizzazione web interattivo  che rende intuitiva la consultazione delle previsioni.
+Infine, la piattaforma realizzata è stata utilizzata per l'esecuzione e la visualizzazione delle simulazioni meteorologice del Golfo di Salerno.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 
 ### Prerequisiti
-Per poter installare il WRF è necessario una macchina linux. 
-Installare le seguenti librerie
+Per eseguire correttamente il progetto, è necessario avere installati i seguenti componenti:
+
+* Docker: per l'esecuzione isolata e portabile dell'ambiente di simulazione e dei servizi ausiliari.
+
+* Python 3.8+: utilizzato per gli script di automazione e gestione del flusso operativo.
+
+### Struttura della repository
+* `download/` - Contiene l’installer e i file necessari per scaricare e configurare il modello WRF sulla macchina locale.
+* `docker-env/`- Include la configurazione e i file per creare un container Docker pronto all’uso, con tutti gli strumenti necessari per eseguire il WRF.
+* `script/` - Raccolta di script Python e shell per automatizzare il flusso di lavoro: elaborazione, esecuzione, e gestione dei dati generati dal WRF.
+* `public/` - Contiene il front-end web per la visualizzazione interattiva dei dati meteorologici prodotti dal modello.
+
+### Installation
+
+Per poter installare il WRF è stato sviluppato un installer nella cartella `download`. 
+Per poter utilizzare l'installer sono necessarie le seguenti librerie:
 
 ```
 sudo apt-get update && apt-get install -y \
@@ -40,10 +55,10 @@ sudo apt-get update && apt-get install -y \
     default-jre \
     csh
 ```
-### Installation
-* Entra nella directory WRF4Salerno
+
+* Entra nella directory `download`
 ```
-cd WRF4Salerno/
+cd download/
 ```
 * Usa il comando:
 ```
