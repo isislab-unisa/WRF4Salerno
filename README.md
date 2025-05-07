@@ -8,7 +8,7 @@
 Il progetto ha l'obiettivo di creare una piattaforma in grado di automatizzare l’intero processo di esecuzione di modelli meteorologici ad alta risoluzione per una specifica area geografica.
 In particolare, integra il [**Global Forecast System (GFS)**](https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast) e il [**Weather Research and Forecasting Model (WRF)**](https://github.com/wrf-model/WRF), automatizzando tutte le fasi operative: dal download dei dati globali, alla loro pre-elaborazione e conversione in formati compatibili, fino all'esecuzione delle simulazioni locali ad alta risoluzione.
 
-La piattaforma offre inoltre un sistema di visualizzazione web interattivo  che rende intuitiva la consultazione delle previsioni.
+La piattaforma offre un sistema di visualizzazione web interattivo  che rende intuitiva la consultazione delle previsioni.
 Infine, la piattaforma realizzata è stata utilizzata per l'esecuzione e la visualizzazione delle simulazioni meteorologice del Golfo di Salerno.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -17,9 +17,9 @@ Infine, la piattaforma realizzata è stata utilizzata per l'esecuzione e la visu
 ### Prerequisiti
 Per eseguire correttamente il progetto, è necessario avere installati i seguenti componenti:
 
-* Docker: per l'esecuzione isolata e portabile dell'ambiente di simulazione e dei servizi ausiliari.
+* `Docker`: per l'esecuzione isolata e portabile dell'ambiente di simulazione e dei servizi ausiliari.
 
-* Python 3.8+: utilizzato per gli script di automazione e gestione del flusso operativo.
+* `Python 3.8+`: utilizzato per gli script di automazione e gestione del flusso operativo.
 
 ### Struttura della repository
 * `download/` - Contiene l’installer e i file necessari per scaricare e configurare il modello WRF sulla macchina locale.

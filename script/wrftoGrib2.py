@@ -62,7 +62,7 @@ def create_field(ds,param_category:int, param_number:int, values, forecast_hours
     codes_release(gid)
 
 # Output file
-filename = "salerno_2days_random.grib2"
+filename = "salerno_forecast_example.grib2"
 
 
 def convertitorWRFtoGRIB2(fileinput,fileoutput=None,base_time=None,FileForDays:bool=False):
@@ -97,7 +97,7 @@ def convertitorWRFtoGRIB2(fileinput,fileoutput=None,base_time=None,FileForDays:b
         create_field(ds,2, 3, v_values.flatten(), fh, base_time, filename)   # V-wind
         
         # Extract T and T2 variables
-        t_values = ds["T"].isel(Time=fh,bottom_top=0).values + 273.15
+        t_values = ds["T2"].isel(Time=fh).values
         create_field(ds,0, 0, t_values.flatten(), fh, base_time, filename, 100,50000)  # Temperature
         # t2_values = ds["T2"].isel(Time=fh).values
         # create_field(0, 0, t2_values.flatten(), fh, base_time, filename)  # Temperature
@@ -131,7 +131,7 @@ def convertitorWRFtoGRIB2(fileinput,fileoutput=None,base_time=None,FileForDays:b
 
 
 
-convertitorWRFtoGRIB2("wrfExample.nc",fileoutput=filename)
+convertitorWRFtoGRIB2("WRF1HOUR.nc",fileoutput=filename)
 
 
 print(f"🌧️ GRIB2 file with random 48h forecast for Salerno written: {filename}")
