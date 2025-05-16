@@ -23,7 +23,8 @@ Per eseguire correttamente il progetto, è necessario avere installati i seguent
 
 ### Struttura della repository
 * `download/` - Contiene l’installer e i file necessari per scaricare e configurare il modello WRF sulla macchina locale.
-* `docker-env/`- Include la configurazione e i file per creare un container Docker pronto all’uso, con tutti gli strumenti necessari per eseguire il WRF.
+* `wrf-docker/` - Configurazione e file per creare un container Docker pronto all’uso con tutti gli strumenti necessari per eseguire il WRF.
+* `docker-env/` - Tutta la configurazione per scaricare e predisporre la piattaforma in ambiente Docker.
 * `script/` - Raccolta di script Python e shell per automatizzare il flusso di lavoro: elaborazione, esecuzione, e gestione dei dati generati dal WRF.
 * `public/` - Contiene il front-end web per la visualizzazione interattiva dei dati meteorologici prodotti dal modello.
 
