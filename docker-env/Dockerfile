@@ -26,11 +26,23 @@ RUN apt-get install -y default-jre
 RUN apt-get install -y unzip
 RUN apt-get install -y nco
 RUN apt-get install -y nano
+RUN apt-get install -y python3
+RUN apt-get install -y python3-pip
+RUN apt-get install -y libpng-dev
+RUN apt-get install -y libjasper-dev
+RUN apt-get install -y libssl-dev
+
 # Create directories
 RUN mkdir -p /wrf 
 
 
 WORKDIR /wrf
+
+
+# Set python3 as the default python
+COPY requirements.txt /wrf/requirements.txt
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install -r /wrf/requirements.txt
 
 # Install WRF
 COPY install_WRF.sh /wrf/install.sh
@@ -43,7 +55,10 @@ COPY cleaner.sh /wrf/WRF/cleaner.sh
 RUN chmod +x /wrf/WRF/cleaner.sh
 COPY setup_namelist.sh /wrf/WRF/setup_namelist.sh
 RUN chmod +x /wrf/WRF/setup_namelist.sh
-COPY run_WRF.sh /wrf/WRF/run.sh
+COPY wrftoImage.py /wrf/WRF/wrftoImage.py
+COPY WRFtoMapData.py /wrf/WRF/WRFtoMapData.py
+COPY run_WRFSystem.sh /wrf/WRF/run.sh
 RUN chmod +x /wrf/WRF/run.sh
+
 
 ENTRYPOINT ["/bin/bash"]

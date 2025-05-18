@@ -116,5 +116,4 @@ if [ $? -ne 0 ]; then
     echo "Errore durante l'unione dei file wrfout* con ncrcat."
     exit 1
 fi
-
-echo "Esecuzione completata con successo."
+echo "Esecuzione completata con successo. File di output salvato in OUTPUT/wrfoutput.nc."

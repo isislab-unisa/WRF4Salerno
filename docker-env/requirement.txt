@@ -1,0 +1,6 @@
+xarray
+matplotlib
+cartopy
+numpy
+pandas
+eccodes

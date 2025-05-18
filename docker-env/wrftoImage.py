@@ -333,7 +333,7 @@ def generate_colorbar_precipitation_only(output_file="colorbar_precipitation.png
 
 if __name__ == "__main__":
     # Apri il file NetCDF
-    nc_file = "WRF1HOUR.nc"
+    nc_file = "wrfoutput.nc"
 
     ds = xr.open_dataset(nc_file)
 
