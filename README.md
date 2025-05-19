@@ -21,6 +21,8 @@ Per eseguire correttamente il progetto, è necessario avere installati i seguent
 
 * `Python 3.8+`: utilizzato per gli script di automazione e gestione del flusso operativo.
 
+* `Node.js`: utilizzato per l'esecuzione della piattaforma web.
+
 ### Struttura della repository
 * `download/` - Contiene l’installer e i file necessari per scaricare e configurare il modello WRF sulla macchina locale.
 * `wrf-docker/` - Configurazione e file per creare un container Docker pronto all’uso con tutti gli strumenti necessari per eseguire il WRF.
