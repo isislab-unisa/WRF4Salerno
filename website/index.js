@@ -72,3 +72,40 @@ app.get('/forecastPoint', (req, res) => {
         res.sendFile(filePath)
     })
 });
+
+app.get('/forecastPoint/:hour', (req, res) => {
+    const fs = require('fs');
+    const path = require('path');
+
+    const directoryPath = path.join(__dirname, 'public/json');
+    const timestamp = req.params.hour;
+    const fileName = `output_${timestamp}.geojson`;
+    const filePath = path.join(directoryPath, fileName);
+
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            return res.status(404).send(`File ${fileName} not found.`);
+        }
+        res.sendFile(filePath);
+    });
+});
+
+
+app.get('/datasetinfo', (req, res) => {
+    const fs = require('fs');
+    const path = require('path');
+
+    const filePath = path.join(__dirname, 'public/json/datasetinfo.json');
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(404).send('datasetinfo.json not found.');
+        }
+        try {
+            const jsonData = JSON.parse(data);
+            res.json(jsonData);
+        } catch (parseErr) {
+            res.status(500).send('Error parsing datasetinfo.json.');
+        }
+    });
+});
