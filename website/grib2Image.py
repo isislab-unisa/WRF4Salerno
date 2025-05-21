@@ -380,11 +380,11 @@ if __name__ == "__main__":
         forecast_time = pd.to_datetime(time_str.replace("_", " "))
         forecast_time= forecast_time.strftime("%Y%m%d")
 
-        generate_minimal_wind_image(ds, time_index=tx,output_file=f"public/Image/minimal_wind_plot{forecast_time}:{tx}.png")
+        generate_minimal_wind_image(ds, time_index=tx,output_file=f"public/Image/minimal_wind_plot{forecast_time}_{tx}.png")
 
-        generate_minimal_temperature_image(ds, time_index=tx,output_file=f"public/Image/minimal_temperature_plot{forecast_time}:{tx}.png")
+        generate_minimal_temperature_image(ds, time_index=tx,output_file=f"public/Image/minimal_temperature_plot{forecast_time}_{tx}.png")
 
-        generate_minimal_precipitation_image(ds, time_index=tx,output_file=f"public/Image/minimal_rain_plot{forecast_time}:{tx}.png")
+        generate_minimal_precipitation_image(ds, time_index=tx,output_file=f"public/Image/minimal_rain_plot{forecast_time}_{tx}.png")
 
 
         generate_wind_colorbar(output_file=f"public/Image/colorbar_wind{forecast_time}:{tx}.png")
