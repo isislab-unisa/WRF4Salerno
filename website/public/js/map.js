@@ -145,7 +145,7 @@ function loadDate(data) {
 function loadTemperature(date, time,data) {
   const btn = document.getElementById("loadBtn");
 
-  var imageUrl = "Image/minimal_temperature_plot" + date + ":" + time + ".png";
+  var imageUrl = "Image/minimal_temperature_plot" + date + "_" + time + ".png";
 
   var imageBounds = [
     [39.71, 14.07], // Angolo in alto a sinistra (latitudine, longitudine)
@@ -221,7 +221,7 @@ function loadWind(date, time,data) {
   //     btn.disabled = false;     // 🔓 Riabilita il bottone
   //     btn.textContent = "Carica dati";
   // });;
-  var imageUrl = "Image/minimal_wind_plot" + date + ":" + time + ".png";
+  var imageUrl = "Image/minimal_wind_plot" + date + "_" + time + ".png";
 
   var imageBounds = [
     [39.71, 14.07], // Angolo in alto a sinistra (latitudine, longitudine)

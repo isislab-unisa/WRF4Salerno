@@ -387,8 +387,8 @@ if __name__ == "__main__":
         generate_minimal_precipitation_image(ds, time_index=tx,output_file=f"public/Image/minimal_rain_plot{forecast_time}_{tx}.png")
 
 
-        generate_wind_colorbar(output_file=f"public/Image/colorbar_wind{forecast_time}:{tx}.png")
-        generate_colorbar_only(output_file=f"public/Image/colorbar_temperature{forecast_time}:{tx}.png")
-        generate_colorbar_precipitation_only(output_file=f"public/Image/colorbar_precipitation{forecast_time}:{tx}.png")
+        generate_wind_colorbar(output_file=f"public/Image/colorbar_wind{forecast_time}_{tx}.png")
+        generate_colorbar_only(output_file=f"public/Image/colorbar_temperature{forecast_time}_{tx}.png")
+        generate_colorbar_precipitation_only(output_file=f"public/Image/colorbar_precipitation{forecast_time}_{tx}.png")
     # Chiudi il dataset
     ds.close()

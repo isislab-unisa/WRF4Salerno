@@ -117,3 +117,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 echo "Esecuzione completata con successo. File di output salvato in OUTPUT/wrfoutput.nc."
+
+# Esegui convertitor.sh per convertire i file wrfout in netcdf
+echo "Esecuzione di convertitor.sh..."
+./convertitor.sh
+if [ $? -ne 0 ]; then
+    echo "Errore durante l'esecuzione di convertitor.sh."
+    exit 1
+fi
+echo "Conversione completata con successo. File di output salvato in OUTPUT/wrfoutput.nc."

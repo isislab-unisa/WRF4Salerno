@@ -3,4 +3,5 @@ matplotlib
 cartopy
 numpy
 pandas
+netcdf4
 eccodes
