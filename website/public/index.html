@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaflet</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="logo">
+        <h1>Meteo Su Misura</h1>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#map">Mappa</a></li>
+        <li><a href="#download">Download</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#footer">Contatti</a></li>
+      </ul>
+    </div>
+
+    <div class="info-panel">
+      <span id="update-time">Previsioni del - XX/XX/XXXX</span>
+      <div class="dataset-info"></div>
+    </div>
+    <div class="info-box" id="data">
+      Nessun dato disponibile
+    </div>
+      <!-- <div class="main">
+        <div class="map-head">
+          <div class="info">
+          </div>
+          <div id="data"></div>
+          <div class="map-container"> -->
+            <!-- <div class="color-bar">
+              <img id="colorbar-image" src="Image/colorbar_temperature.png" alt="Color Bar" />
+            </div> -->
+          <!-- </div>
+        </div> -->
+                
+        <!-- <div class="panel panel-form">
+          <div class="modal-content">
+            <span class="close" onclick="closeModal('formModal')">&times;</span>
+            <div class="form">
+              <div class="time">
+                <span id="update-time">Seleziona l'orario che vuoi: </span>
+                <input
+                  type="range"
+                  id="timeSlider"
+                  min="0"
+                  max="23"
+                  value="0"
+                  step="1"
+                />
+                <span id="selectedTime">Orario selezionato: 1</span>
+              </div>
+              <div>
+                <label>
+                  <input
+                    type="radio"
+                    name="forecastType"
+                    value="wind"
+                    checked
+                  />
+                  Wind
+                </label>
+                <label>
+                  <input type="radio" name="forecastType" value="temperature" />
+                  T
+                </label>
+
+                <button id="loadBtn" onclick="loadForecast()">
+                  Carica dati
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+      
+
+      <div class="forecast-type-panel">
+        <label>
+          <input type="radio" name="forecastType" value="wind" checked /> Wind
+        </label>
+        <label>
+          <input type="radio" name="forecastType" value="temperature" /> T
+        </label>
+      </div>
+
+      <div id="map"></div>
+
+      <div class="timeline-bar">
+        <div class="timeline-slider">
+          <input
+            type="range"
+            id="timeSlider"
+            min="0"
+            max="23"
+            value="0"
+            step="1"
+          />
+          <span id="selectedTime">Orario selezionato: 1</span>
+        </div>
+      </div>
+
+      <!-- <div class="panel panel-download">
+        <div class="download">
+          <table border="1">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Dimensioni</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><a href="files/WRF1HOUR.nc" download>WRF1HOUR.nc</a></td>
+                <td>15 KB</td>
+                <td>06/05/2025</td>
+              </tr>
+              <tr>
+                <td><a href="files/example2.pdf" download>WRFGrib.grb</a></td>
+                <td>1.2 MB</td>
+                <td>05/05/2025</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div> -->
+
+      <div class="download-box">
+        <table border="1">
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>Dimensioni</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="files/WRF1HOUR.nc" download>WRF1HOUR.nc</a></td>
+              <td>15 KB</td>
+              <td>06/05/2025</td>
+            </tr>
+            <tr>
+              <td><a href="files/example2.pdf" download>WRFGrib.grb</a></td>
+              <td>1.2 MB</td>
+              <td>05/05/2025</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+
+
+      <div class="about">
+        <h2>About Meteo Su misura</h2>
+        <p>
+          Meteo su Misura è una piattaforma progettata per automatizzare
+          l'intero processo di esecuzione di modelli meteorologici ad alta
+          risoluzione per specifiche aree geografiche. In particolare, integra
+          il Global Forecast System (GFS) e il Weather Research and Forecasting
+          Model (WRF), semplificando tutte le fasi operative: dal download dei
+          dati globali alla loro pre-elaborazione e conversione in formati
+          compatibili, fino all'esecuzione delle simulazioni locali ad alta
+          risoluzione.
+        </p>
+        <p>
+          La piattaforma è stata utilizzata per eseguire e visualizzare
+          simulazioni meteorologiche del Golfo di Salerno. I risultati delle
+          simulazioni sono presentati in un formato chiaro e intuitivo,
+          consentendo agli utenti di selezionare il periodo di interesse e di
+          scaricare i file di output nei formati NetCDF e GRIB.
+        </p>
+        <p>
+          Per ulteriori informazioni sull'installazione e sull'utilizzo di Meteo
+          su Misura, è possibile consultare la repository
+          <a href="">WRF4Salerno</a>, dove sono disponibili le istruzioni
+          dettagliate.
+        </p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer">
+        <p>
+          Per ulteriori informazioni, visita la repository ufficiale su
+          <a href="https://github.com/tuo-username/WRF4Salerno" target="_blank"
+            >GitHub</a
+          >.
+        </p>
+        <p>
+          I dati meteorologici sono forniti dal
+          <a href="https://www.ncep.noaa.gov/" target="_blank"
+            >National Centers for Environmental Prediction (NCEP)</a
+          >.
+        </p>
+        <p>&copy; 2025 Meteo Su Misura. Tutti i diritti riservati.</p>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"
+    />
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+    <script>
+      fetch("json/config.json")
+        .then((response) => response.json())
+        .then((config) => {
+          document.querySelector(
+            ".logo h1"
+          ).textContent = `MeteoSuMisura:${config.area}`;
+        });
+    </script>
+    <script src="js/modal.js"></script>
+    <script src="js/files.js"></script>
+    <script src="js/map.js"></script>
+  </body>
+</html>

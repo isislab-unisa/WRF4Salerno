@@ -1,0 +1,414 @@
+  *{
+    margin: 0;
+    padding: 0;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+
+
+
+/*Top page*/
+/* Stile per l'header */
+/* Navbar container */
+.navbar {
+    display: flex;
+    justify-content: space-between; /* Spaziatura tra logo e link */
+    align-items: center; /* Allinea verticalmente */
+    background-color: #1e232d; /* Sfondo scuro */
+    padding: 1rem 2rem; /* Spaziatura interna */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ombra */
+    position: sticky; /* Rende la navbar fissa */
+    top: 0; /* Posiziona in alto */
+    z-index: 1000; /* Assicura che sia sopra gli altri elementi */
+}
+
+/* Logo nella navbar */
+.navbar .logo h1 {
+    color: #fff; /* Colore del testo */
+    font-size: 1.8rem; /* Dimensione del logo */
+    margin: 0; /* Rimuove margini */
+}
+
+/* Link della navbar */
+.navbar .nav-links {
+    list-style: none; /* Rimuove i punti elenco */
+    display: flex; /* Disposizione orizzontale */
+    gap: 1.5rem; /* Spaziatura tra i link */
+    margin: 0; /* Rimuove margini */
+    padding: 0; /* Rimuove padding */
+}
+
+/* Stile per i link */
+.navbar .nav-links li a {
+    text-decoration: none; /* Rimuove la sottolineatura */
+    color: #fff; /* Colore del testo */
+    font-size: 1rem; /* Dimensione del testo */
+    font-weight: bold; /* Grassetto */
+    transition: color 0.3s ease; /* Animazione al passaggio del mouse */
+}
+
+/* Hover sui link */
+.navbar .nav-links li a:hover {
+    color: #007BFF; /* Cambia colore al passaggio del mouse */
+}
+/* Main page */
+
+.container{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-top: 2rem;
+    align-items: center;
+    box-sizing: border-box; /* Include padding e bordi nella larghezza */
+
+}
+
+/* map option */
+
+#map {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Pannello radio in alto a destra */
+.forecast-type-panel {
+  position: fixed;
+  top: 80px; /* sotto la navbar, regola se necessario */
+  right: 32px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  padding: 16px 20px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forecast-type-panel label {
+  font-size: 1.1em;
+  cursor: pointer;
+}
+
+/* Timeline bar sticky in basso */
+.timeline-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.12);
+  display: flex;
+  align-items: center;
+  padding: 12px 32px;
+  z-index: 20;
+}
+
+.timeline-slider {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+#timeSlider {
+  width: 100%;
+  max-width: 1200px;
+}
+
+#selectedTime {
+  min-width: 180px;
+  text-align: left;
+  font-size: 1.1em;
+}
+
+.info{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    width: 28rem;
+    margin: 0.5rem;
+    padding: 0.5rem;
+}
+
+/* Form */
+
+/* Stile per il contenitore del form */
+.form {
+    background-color: #f9f9f9; /* Sfondo chiaro */
+    padding: 1.5rem; /* Spaziatura interna */
+    margin: 2rem auto; /* Margine sopra e sotto */
+    border: 1px solid #ddd; /* Bordo sottile */
+    border-radius: 8px; /* Angoli arrotondati */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombra leggera */
+    width: 50%; /* Larghezza relativa */
+    text-align: center; /* Centra il contenuto */
+}
+
+/* Stile per la sezione del time slider */
+.form .time {
+    margin-bottom: 1.5rem; /* Spaziatura sotto */
+    text-align: left; /* Allinea il testo a sinistra */
+}
+
+/* Stile per il testo del time slider */
+.form .time span {
+    display: block; /* Ogni elemento su una nuova riga */
+    font-size: 1rem; /* Dimensione del testo */
+    color: #333; /* Colore del testo */
+    margin-bottom: 0.5rem; /* Spaziatura sotto */
+}
+
+/* Stile per l'input range (slider) */
+.form input[type="range"] {
+    width: 100%; /* Larghezza completa */
+    margin: 0.5rem 0; /* Spaziatura sopra e sotto */
+    accent-color: #007BFF; /* Colore dello slider */
+}
+
+/* Stile per i radio button */
+.form label {
+    font-size: 1rem; /* Dimensione del testo */
+    color: #555; /* Colore del testo */
+    margin-right: 1rem; /* Spaziatura tra i radio button */
+    cursor: pointer; /* Cambia il cursore al passaggio del mouse */
+}
+
+/* Stile per il pulsante */
+.form button {
+    background-color: #1e232d; /* Colore di sfondo */
+    color: #fff; /* Colore del testo */
+    border: none; /* Rimuove il bordo */
+    padding: 0.8rem 1.5rem; /* Spaziatura interna */
+    font-size: 1rem; /* Dimensione del testo */
+    border-radius: 5px; /* Angoli arrotondati */
+    cursor: pointer; /* Cambia il cursore al passaggio del mouse */
+    transition: background-color 0.3s ease; /* Animazione al passaggio del mouse */
+}
+
+/* Hover sul pulsante */
+.form button:hover {
+    background-color: #0056b3; /* Colore più scuro al passaggio del mouse */
+}
+
+.info-panel {
+  position: fixed;
+  top: 5rem;
+  left: 5rem;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  padding: 16px 20px;
+  z-index: 30;
+  min-width: 220px;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#update-time {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.dataset-info {
+  font-size: 1em;
+}
+
+
+.info-box {
+  position: fixed;
+  bottom: 5rem;
+  right: 24px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  padding: 16px 20px;
+  z-index: 30;
+  min-width: 220px;
+  max-width: 350px;
+  font-size: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+
+/* downloader */
+
+.download-box {
+  position: fixed;
+  bottom: 5rem;
+  left: 24px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  padding: 16px 20px;
+  z-index: 30;
+  min-width: 220px;
+  max-width: 350px;
+  font-size: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.download-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.download-box th, .download-box td {
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.download-box th {
+  background: #f5f5f5;
+}
+
+/* Stile per il contenitore della sezione download */
+.download {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    margin-top: 2rem;
+    background-color: #f9f9f9; /* Sfondo chiaro */
+    width: 40vw; /* Larghezza relativa */
+    border-radius: 8px; /* Angoli arrotondati */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombra leggera */
+    text-align: center; /* Centra il contenuto */
+}
+
+/* Stile per la tabella */
+.download table {
+    width: 100%; /* Larghezza completa */
+    border-collapse: collapse; /* Rimuove gli spazi tra i bordi */
+    margin-top: 1rem; /* Spaziatura sopra la tabella */
+    font-size: 1rem; /* Dimensione del testo */
+    text-align: left; /* Allinea il testo a sinistra */
+}
+
+/* Stile per le intestazioni della tabella */
+.download table thead th {
+    background-color: #1e232d; /* Sfondo blu */
+    color: #fff; /* Testo bianco */
+    padding: 0.8rem; /* Spaziatura interna */
+    text-align: left; /* Allinea il testo a sinistra */
+    font-weight: bold; /* Grassetto */
+    border-bottom: 2px solid #1e232d; /* Bordo inferiore */
+}
+
+/* Stile per le righe della tabella */
+.download table tbody tr {
+    border-bottom: 1px solid #ddd; /* Bordo inferiore */
+    transition: background-color 0.3s ease; /* Animazione al passaggio del mouse */
+}
+
+/* Stile per le celle della tabella */
+.download table tbody td {
+    padding: 0.8rem; /* Spaziatura interna */
+    color: #333; /* Colore del testo */
+}
+
+/* Hover sulle righe della tabella */
+.download table tbody tr:hover {
+    background-color: #f1f1f1; /* Sfondo grigio chiaro al passaggio del mouse */
+}
+
+/* Stile per i link nella tabella */
+.download table tbody td a {
+    color: #007BFF; /* Colore del link */
+    text-decoration: none; /* Rimuove la sottolineatura */
+    font-weight: bold; /* Grassetto */
+}
+
+.download table tbody td a:hover {
+    text-decoration: underline; /* Sottolinea il link al passaggio del mouse */
+}
+
+/* ABOUT */
+
+/* Stile per il titolo About */
+.about h2 {
+    font-size: 1.4rem; /* Dimensione del titolo */
+    color: #333; /* Colore del testo */
+    margin-bottom: 1rem; /* Spaziatura sotto il titolo */
+    font-weight: bold; /* Grassetto */
+}
+
+/* Stile per i paragrafi About */
+.about p {
+    font-size: 1.2rem; /* Dimensione del testo */
+    color: #555; /* Colore del testo */
+    text-align: justify; /* Giustifica il testo */
+    margin-bottom: 1rem; /* Spaziatura tra i paragrafi */
+}
+
+/* Stile per i link all'interno di About */
+.about a {
+    color: #007BFF; /* Colore del link */
+    text-decoration: none; /* Rimuove la sottolineatura */
+    font-weight: bold; /* Grassetto */
+}
+
+.about a:hover {
+    text-decoration: underline; /* Sottolinea il link al passaggio del mouse */
+}
+
+/* Contenitore About */
+.about {
+    background-color: #f9f9f9; /* Colore di sfondo chiaro */
+    padding: 2rem; /* Spaziatura interna */
+    margin: 2rem auto; /* Margine sopra e sotto, centrato */
+    width: 40vw; /* Larghezza relativa */
+    border-radius: 8px; /* Angoli arrotondati */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombra leggera */
+}
+
+/* Footer option */
+/* Footer option */
+.footer {
+    background-color: #1e232d; /* Sfondo scuro */
+    color: #fff; /* Testo bianco */
+    text-align: center; /* Centra il testo */
+    padding: 2rem; /* Spaziatura interna */
+    width: 100%; /* Occupa tutta la larghezza */
+    box-sizing: border-box; /* Include padding e bordi nella larghezza */
+    position: relative; /* Mantiene il footer nel flusso del layout */
+    border-top: 2px solid #444; /* Bordo superiore */
+    font-size: 0.9rem; /* Dimensione del testo */
+}
+
+/* Stile per i link nel footer */
+.footer a {
+    color: #007BFF; /* Colore dei link */
+    text-decoration: none; /* Rimuove la sottolineatura */
+    font-weight: bold; /* Grassetto */
+}
+
+.footer a:hover {
+    text-decoration: underline; /* Sottolinea i link al passaggio del mouse */
+}
+
+/* Stile per i paragrafi nel footer */
+.footer p {
+    margin: 0.5rem 0; /* Spaziatura verticale tra i paragrafi */
+    line-height: 1.6; /* Migliora la leggibilità */
+}
+
+/* Stile per il copyright */
+.footer .copyright {
+    margin-top: 1rem; /* Spaziatura sopra il copyright */
+    font-size: 0.8rem; /* Testo più piccolo */
+    color: #aaa; /* Colore grigio chiaro */
+}
