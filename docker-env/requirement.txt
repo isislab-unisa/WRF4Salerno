@@ -5,3 +5,5 @@ numpy
 pandas
 netcdf4
 eccodes
+geopandas
+matplotlib
