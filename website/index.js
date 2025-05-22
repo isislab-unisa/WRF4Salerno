@@ -58,21 +58,6 @@ app.get('/filelist', (req, res) => {
 }
 );
 
-app.get('/forecastPoint', (req, res) => {
-    const fs = require('fs');
-    const path = require('path');
-
-    const directoryPath = path.join(__dirname, 'public/json');
-    
-    fs.readdir(directoryPath,(err,files)=>{
-        if (err) {
-            return res.status(500).send('Unable to scan directory: ' + err);
-        } 
-        const filePath= path.join(directoryPath, files[2]);
-        res.sendFile(filePath)
-    })
-});
-
 app.get('/forecastPoint/:hour', (req, res) => {
     const fs = require('fs');
     const path = require('path');
@@ -109,3 +94,22 @@ app.get('/datasetinfo', (req, res) => {
         }
     });
 });
+
+app.get('/config', (req, res) => {
+    const fs = require('fs');
+    const path = require('path');
+
+    const filePath = path.join(__dirname, 'public/json/config.json');
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(404).send('config.json not found.');
+        }
+        try {
+            const jsonData = JSON.parse(data);
+            res.json(jsonData);
+        } catch (parseErr) {
+            res.status(500).send('Error parsing config.json.');
+        }
+    });
+})

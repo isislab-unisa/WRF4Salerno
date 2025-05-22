@@ -3,5 +3,5 @@
   "hour_prediction": 24,
   "resolution": 1000,
   "resolution_scale":"m",
-  "initial_bounds":[]
+  "initial_bounds":[40.29,14.90]
 }

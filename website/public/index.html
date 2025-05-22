@@ -26,7 +26,7 @@
     </div>
 
     <div class="info-panel">
-      <span id="update-time">Previsioni del - XX/XX/XXXX</span>
+      <span id="update-time">Dati non disponibili</span>
       <div class="dataset-info"></div>
     </div>
     <div class="info-box" id="data">
@@ -219,15 +219,6 @@
     />
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
-    <script>
-      fetch("json/config.json")
-        .then((response) => response.json())
-        .then((config) => {
-          document.querySelector(
-            ".logo h1"
-          ).textContent = `MeteoSuMisura:${config.area}`;
-        });
-    </script>
     <script src="js/modal.js"></script>
     <script src="js/files.js"></script>
     <script src="js/map.js"></script>

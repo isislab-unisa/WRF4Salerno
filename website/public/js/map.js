@@ -29,9 +29,29 @@ const markerCluster = L.markerClusterGroup();
 
 // Funzione per aggiungere un imageOverlay e tenerne traccia
 function addImageOverlay(url, bounds, options) {
-  const layer = L.imageOverlay(url, bounds, options).addTo(map);
-  imageLayers.push(layer);
-  return layer;
+  // Crea un oggetto Image per verificare se l'immagine esiste
+  const img = new Image();
+  img.onload = function () {
+    // Se l'immagine esiste, aggiungila normalmente
+    const layer = L.imageOverlay(url, bounds, options).addTo(map);
+    imageLayers.push(layer);
+    return layer;
+  };
+  img.onerror = function () {
+    // Se l'immagine non esiste, mostra un overlay con un messaggio
+    const errorUrl =
+      "data:image/svg+xml;charset=UTF-8," +
+      encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="60">
+          <rect width="100%" height="100%" fill="transparent"/>
+          <text x="50%" y="50%" font-size="10" text-anchor="middle" fill="black" dy=".3em">Immagine non disponibile</text>
+        </svg>`
+      );
+    const layer = L.imageOverlay(errorUrl, bounds).addTo(map);
+    imageLayers.push(layer);
+    return layer;
+  };
+  img.src = url;
 }
 
 function loadForecastHelper(data) {
@@ -83,8 +103,7 @@ function loadForecastHelper(data) {
 
 function loadForecast() {
   const time = document.getElementById("timeSlider").value;
-  $.getJSON("http://localhost:3000/forecastPoint/"+time, function (data) {
-    loadDate(data);
+  $.getJSON("json/output_"+time+".geojson", function (data) {
     loadForecastHelper(data);
   }).fail(function () {
     console.error("Errore nel caricamento dei dati JSON");
@@ -125,15 +144,40 @@ function loadWidgetInfo(typeofData, data) {
   });
 }
 
-function loadDate(data) {
-  const validDate = data.name.split("_")[1]; // Estrai la data dal nome del file
+function loadInfo() {
   const dateInput = document.getElementById("update-time");
-  const formattedDate = `${validDate.slice(6, 8)}/${validDate.slice(
-    4,
-    6
-  )}/${validDate.slice(0, 4)}`;
-  dateInput.value = `Previsioni del - ${formattedDate}`;
-  dateInput.textContent = `Previsioni del - ${formattedDate}`;
+  $.getJSON("json/datasetinfo.json", function (data) {
+    const validDate = data["dataprediction"];
+    const validRuntime = data["runtime"];
+
+    // Format dataprediction (YYYYMMDD → DD/MM/YYYY)
+    const formattedDate = `${validDate.slice(6, 8)}/${validDate.slice(4, 6)}/${validDate.slice(0, 4)}`;
+
+    // Format runtime (YYYYMMDDHH → DD/MM/YYYY HH:00)
+    let formattedRuntime = `${validRuntime.slice(6, 8)}/${validRuntime.slice(4, 6)}/${validRuntime.slice(0, 4)}`;
+    if (validRuntime && validRuntime.length >= 10) {
+      formattedRuntime = `${validRuntime.slice(6, 8)}/${validRuntime.slice(4, 6)}/${validRuntime.slice(0, 4)} ${validRuntime.slice(8, 10)}:00`;
+    }
+
+    // Testo su due righe
+    const infoText = `Previsioni del - ${formattedDate}<br>Predizione eseguita - ${formattedRuntime}`;
+    dateInput.innerHTML = infoText;
+    dateInput.value = infoText;
+  }).fail(function () {
+    const infoText = "Dati non disponibili";
+    dateInput.innerHTML = infoText;
+    dateInput.value = infoText;
+  });
+
+  // $.getJSON("http://localhost:3000/config", function (data) {
+  //   const area=data["area"];
+  //   const hour_prediction=data["hour_prediction"];
+  //   resolution=data["resolution"];
+  //   resolution_scale=data["resolution_scale"];
+  //   initial_bounds=data["initial_bounds"];
+  // }).fail(function () {
+
+  // });
 }
 
 function loadTemperature( time,bounds, data) {
@@ -166,4 +210,32 @@ document.querySelector("#timeSlider").addEventListener("change", (e) => {
     "Orario Selezionato: " + hour;
 });
 
+
+
+$.getJSON("json/config.json", function (data) {
+        const area=data["area"];
+        const hour_prediction=data["hour_prediction"];
+        const resolution=data["resolution"];
+        const resolution_scale=data["resolution_scale"];
+        const initial_bounds=data["initial_bounds"];
+        document.querySelector(
+            ".logo h1"
+          ).textContent = `MeteoSuMisura:${area}`;
+        
+        document.querySelector(
+          ".dataset-info"
+        ).innerHTML = `
+        - Area: ${area} <br>
+        - Previsioni di ${hour_prediction} ore<br> 
+        - Risoluzione: ${resolution} ${resolution_scale} `;
+        ;
+        map.setView(initial_bounds,9)
+
+        document.querySelector("#timeSlider").max = hour_prediction-1;
+        
+      }).fail(function () {
+
+      });
+
+loadInfo();
 loadForecast();
