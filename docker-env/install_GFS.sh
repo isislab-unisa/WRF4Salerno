@@ -1,19 +1,35 @@
 #!/bin/bash
 
+
+# Exit on error to prevent proceeding with unresolved issues
+set -ex
+
 # Directory dove verranno salvati i dati GFS
 DATA_DIR="DATA"
 
 # Calcola la data del giorno precedente
 YESTERDAY=$(date -d "yesterday" +"%Y%m%d")
 
-# Controlla se la data è valida
-echo "Controllo della data del giorno precedente: $YESTERDAY"
-
-# Base URL per il download dei dati GFS
 BASE_URL="https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.${YESTERDAY}/00/atmos"
 
-# File da scaricare
-FILES=("gfs.t00z.pgrb2.0p25.f024" "gfs.t00z.pgrb2.0p25.f030" "gfs.t00z.pgrb2.0p25.f036" "gfs.t00z.pgrb2.0p25.f042" "gfs.t00z.pgrb2.0p25.f048")
+# Leggi hour_prediction da config.json
+CONFIG_JSON="config.json"
+if [ ! -f "$CONFIG_JSON" ]; then
+    echo "Errore: $CONFIG_JSON non trovato!"
+    exit 1
+fi
+
+HOUR_PREDICTION=$(jq '.hour_prediction' "$CONFIG_JSON")
+if [ -z "$HOUR_PREDICTION" ]; then
+    echo "Errore: hour_prediction non trovato in $CONFIG_JSON!"
+    exit 1
+fi
+
+FILES=()
+for ((h=6; h<=HOUR_PREDICTION; h+=6)); do
+    FILE_H=$(printf "%03d" $h)
+    FILES+=("gfs.t00z.pgrb2.0p25.f${FILE_H}")
+done
 
 # Creazione della directory se non esiste
 if [ ! -d "$DATA_DIR" ]; then

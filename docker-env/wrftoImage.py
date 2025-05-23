@@ -36,6 +36,19 @@ def generate_windspeed_image(ds, time_index=0,output_file="wind_vector_plot.png"
     ax.add_feature(cfeature.BORDERS, linestyle=":")
     ax.add_feature(cfeature.COASTLINE)
 
+    # Aggiungi data e ora sulla mappa
+    # Ottieni la data e l'ora dal dataset e convertila nel formato richiesto
+    # time_str = str(ds["Times"].isel(Time=time_index).values)
+
+    # ax.text(
+    #     0.01, -0.1,  # Posizione relativa (in basso a sinistra)
+    #     f"Data e Ora: {time_str}",  # Data e ora formattata        transform=ax.transAxes,
+    #     fontsize=10,
+    #     color='black',
+    #     bbox=dict(facecolor='white', alpha=0.8, edgecolor='none')
+    # )
+
+
     # Plotta le frecce del vento sopra i dati della temperatura
     quiver = ax.quiver(
         lons_sampled, lats_sampled, u_sampled, v_sampled,wind_speed_sampled, # Direzione del vento
@@ -180,17 +193,27 @@ def generate_minimal_wind_image(ds,time_index=0, output_file="minimal_wind_plot.
     v_sampled = v_values[::step, ::step]
     wind_speed_sampled = wind_speed[::step, ::step]
 
-    fig, ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': ccrs.PlateCarree()})
-    ax.set_extent([lons.min(), lons.max(), lats.min(), lats.max()], crs=ccrs.PlateCarree())
+    # fig, ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': ccrs.PlateCarree()})
+    fig, ax = plt.subplots(figsize=(12, 8), dpi=600)
 
-    ax.add_feature(cfeature.LAND, edgecolor="black", facecolor="lightgray")
-    ax.add_feature(cfeature.BORDERS, linestyle=":")
-    ax.add_feature(cfeature.COASTLINE)
+    # ax.set_extent([lons.min(), lons.max(), lats.min(), lats.max()], crs=ccrs.PlateCarree())
+    # Imposta i limiti sugli assi per coprire l'area dei dati
+    ax.set_xlim(lons.min(), lons.max())
+    ax.set_ylim(lats.min(), lats.max())
+
+    # ax.add_feature(cfeature.LAND, edgecolor="black", facecolor="lightgray")
+    # ax.add_feature(cfeature.BORDERS, linestyle=":")
+    # ax.add_feature(cfeature.COASTLINE)
 
     quiver = ax.quiver(
         lons_sampled, lats_sampled, u_sampled, v_sampled, wind_speed_sampled,
-        scale=300, pivot='middle', cmap='viridis', alpha=0.9, transform=ccrs.PlateCarree()
+        scale=300, pivot='middle', cmap='viridis', alpha=0.9,
+        #  transform=ccrs.PlateCarree()
     )
+    # quiver = ax.quiver(
+    #     lons_sampled, lats_sampled, u_sampled, v_sampled,
+    #     scale=300, pivot='middle', color='black', alpha=0.9, transform=ccrs.PlateCarree()
+    # )
 
     # Rimuovi assi e bordi
     ax.axis('off')
@@ -199,7 +222,7 @@ def generate_minimal_wind_image(ds,time_index=0, output_file="minimal_wind_plot.
     plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
     # Salva la figura
-    plt.savefig(output_file, dpi=600, bbox_inches='tight', pad_inches=0)
+    plt.savefig(output_file, dpi=600, bbox_inches='tight', pad_inches=0, transparent=True)
 
     # Chiudi la figura
     plt.close(fig)
@@ -233,14 +256,22 @@ def generate_minimal_temperature_image(ds, time_index=0, output_file="minimal_te
     lons = ds['XLONG'].isel(Time=time_index).values
     temperature = ds['T2'].isel(Time=time_index).values - 273.15  # Converti in Celsius
 
-    fig, ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': ccrs.PlateCarree()})
-    ax.set_extent([lons.min(), lons.max(), lats.min(), lats.max()], crs=ccrs.PlateCarree())
+    # fig, ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': ccrs.PlateCarree()})
+    # ax.set_extent([lons.min(), lons.max(), lats.min(), lats.max()], crs=ccrs.PlateCarree())
+    fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
+    ax.set_xlim(lons.min(), lons.max())
+    ax.set_ylim(lats.min(), lats.max())
 
-    ax.add_feature(cfeature.LAND, edgecolor="black", facecolor="lightgray")
-    ax.add_feature(cfeature.BORDERS, linestyle=":")
-    ax.add_feature(cfeature.COASTLINE)
+    # ax.add_feature(cfeature.LAND, edgecolor="black", facecolor="lightgray")
+    # ax.add_feature(cfeature.BORDERS, linestyle=":")
+    # ax.add_feature(cfeature.COASTLINE)
 
-    temp_plot = ax.contourf(lons, lats, temperature, cmap='coolwarm', levels=20, transform=ccrs.PlateCarree())
+    temp_plot = ax.contourf(lons, lats, temperature, 
+                            cmap='RdYlBu_r', 
+                            # vmin=-23.15, vmax=36.85,  # Intervallo di temperatura in Celsius
+                            levels=20, 
+                            norm=plt.Normalize(vmin=-23.15, vmax=36.85),  # Normalizzazione per la colormap
+                            )
     
     # Rimuovi assi e bordi
     ax.axis('off')
@@ -249,7 +280,7 @@ def generate_minimal_temperature_image(ds, time_index=0, output_file="minimal_te
     plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
     # Salva la figura
-    plt.savefig(output_file, dpi=300, bbox_inches='tight', pad_inches=0)
+    plt.savefig(output_file, dpi=300, bbox_inches='tight', pad_inches=0,transparent=True)
 
     # Chiudi la figura
     plt.close(fig)
@@ -349,15 +380,15 @@ if __name__ == "__main__":
         forecast_time = pd.to_datetime(time_str.replace("_", " "))
         forecast_time= forecast_time.strftime("%Y%m%d")
 
-        generate_minimal_wind_image(ds, time_index=tx,output_file=f"public/Image/minimal_wind_plot{forecast_time}:{tx}.png")
+        generate_minimal_wind_image(ds, time_index=tx,output_file=f"public/Image/minimal_wind_plot_{tx}.png")
 
-        generate_minimal_temperature_image(ds, time_index=tx,output_file=f"public/Image/minimal_temperature_plot{forecast_time}:{tx}.png")
+        generate_minimal_temperature_image(ds, time_index=tx,output_file=f"public/Image/minimal_temperature_plot_{tx}.png")
 
-        generate_minimal_precipitation_image(ds, time_index=tx,output_file=f"public/Image/minimal_rain_plot{forecast_time}:{tx}.png")
+        generate_minimal_precipitation_image(ds, time_index=tx,output_file=f"public/Image/minimal_rain_plot_{tx}.png")
 
 
-        generate_wind_colorbar(output_file=f"public/Image/colorbar_wind{forecast_time}:{tx}.png")
-        generate_colorbar_only(output_file=f"public/Image/colorbar_temperature{forecast_time}:{tx}.png")
-        generate_colorbar_precipitation_only(output_file=f"public/Image/colorbar_precipitation{forecast_time}:{tx}.png")
+        generate_wind_colorbar(output_file=f"public/Image/colorbar_wind_{tx}.png")
+        generate_colorbar_only(output_file=f"public/Image/colorbar_temperature_{tx}.png")
+        generate_colorbar_precipitation_only(output_file=f"public/Image/colorbar_precipitation_{tx}.png")
     # Chiudi il dataset
     ds.close()

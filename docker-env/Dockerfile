@@ -25,6 +25,7 @@ RUN apt-get install -y grads
 RUN apt-get install -y default-jre
 RUN apt-get install -y unzip
 RUN apt-get install -y nco
+RUN apt-get install -y jq
 RUN apt-get install -y nano
 RUN apt-get install -y python3
 RUN apt-get install -y python3-pip

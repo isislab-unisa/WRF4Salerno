@@ -7,7 +7,6 @@ import pandas as pd
 import matplotlib.colors as mcolors
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
 
 # def temperature_to_color(temperature):
 #     """Convert temperature to a color."""
@@ -57,8 +56,6 @@ def create_field(ds, output_file:str, forecast_time:pd.Timestamp,date:str = None
             # rain = float(total_rain[j, i])
             point = Point(float(lon[j, i]), float(lat[j, i]))
 
-            
-
             features.append({
                     "geometry": point,
                     "temperature": round(temperature, 2),
@@ -86,6 +83,7 @@ if __name__ == "__main__":
 
 
     for tx in range(len(ds["Time"])):
+        output_file = f"public/json/output_{tx}.geojson"
         create_field(ds, output_file, tx, forecast_time)
     # Close the dataset
     ds.close()

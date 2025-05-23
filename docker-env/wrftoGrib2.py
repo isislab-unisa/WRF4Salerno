@@ -6,9 +6,7 @@ from eccodes import (
     codes_release,
 )
 import xarray as xr
-import numpy as np
 import pandas as pd
-from datetime import datetime
 
 def create_field(ds,param_category:int, param_number:int, values, forecast_hours, base_date, filename:str,level=None,
     level_value=None,):
@@ -62,7 +60,7 @@ def create_field(ds,param_category:int, param_number:int, values, forecast_hours
     codes_release(gid)
 
 # Output file
-filename = "salerno_forecast_example.grib2"
+filename = "public/files/wrfoutput.grib2"
 
 
 def convertitorWRFtoGRIB2(fileinput,fileoutput=None,base_time=None,FileForDays:bool=False):

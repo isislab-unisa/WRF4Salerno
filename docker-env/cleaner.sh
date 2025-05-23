@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+# Exit on error to prevent proceeding with unresolved issues
+set -ex
+
 # filepath: c:\Users\Asus\Desktop\DOCKERSCRIPT\cleaner.sh
 
 # Percorsi delle directory
