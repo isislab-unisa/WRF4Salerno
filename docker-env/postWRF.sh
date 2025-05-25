@@ -1,7 +1,7 @@
-cd ~/wrf/WRF/website/ || { echo "Directory website non trovata"; exit 1; }
+cd /wrf/WRF/website/ || { echo "Directory website non trovata"; exit 1; }
 
 mkdir -p public
-mkdir -p public/Images
+mkdir -p public/Image
 mkdir -p public/json
 mkdir -p public/files
 

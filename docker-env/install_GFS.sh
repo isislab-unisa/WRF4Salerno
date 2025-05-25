@@ -26,7 +26,7 @@ if [ -z "$HOUR_PREDICTION" ]; then
 fi
 
 FILES=()
-for ((h=6; h<=HOUR_PREDICTION; h+=6)); do
+for ((h=24; h<=HOUR_PREDICTION+24; h+=6)); do
     FILE_H=$(printf "%03d" $h)
     FILES+=("gfs.t00z.pgrb2.0p25.f${FILE_H}")
 done
