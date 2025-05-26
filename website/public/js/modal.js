@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", function () {
   // Quando cambia il time slider
   document.getElementById("timeSlider").addEventListener("input", function () {

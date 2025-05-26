@@ -9,21 +9,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Leaflet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="css/style.css" />
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   </head>
   <body>
-    <div class="navbar">
-      <div class="logo">
-        <h1>Meteo Su Misura</h1>
+    <!-- Navbar minimal a due "pill" ovali -->
+    <nav class="navbar navbar-dark bg-primary px-0 py-0 fixed-top border-0" style="background: none; box-shadow: none; z-index: 1050;">
+      <div class="d-flex flex-row justify-content-between align-items-center w-100" style="pointer-events: none;">
+        <div class="bg-primary bg-opacity-75 rounded-pill px-3 py-1 ms-3 mt-3 shadow d-flex align-items-center" style="pointer-events: auto; min-width: unset; max-width: 340px;">
+          <a class="logo navbar-brand fw-bold text-white mb-0" href="#" style="font-size: 1.1rem; white-space: nowrap;">Meteo Su Misura - Previsioni ad Alta Risoluzione</a>
+        </div>
+        <div class="bg-primary bg-opacity-75 rounded-pill px-2 py-1 me-3 mt-3 shadow d-flex align-items-center" style="pointer-events: auto; min-width: unset; max-width: 320px;">
+          <ul class="navbar-nav flex-row gap-2 mb-0">
+            <li class="nav-item"><a class="nav-link text-white px-2" href="#map">Mappa</a></li>
+            <li class="nav-item"><a class="nav-link text-white px-2" href="#download">Download</a></li>
+            <li class="nav-item"><a class="nav-link text-white px-2" href="#about">About</a></li>
+          </ul>
+        </div>
       </div>
-      <ul class="nav-links">
-        <li><a href="#map">Mappa</a></li>
-        <li><a href="#download">Download</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#footer">Contatti</a></li>
-      </ul>
-    </div>
+    </nav>
+    <div style="height:70px;"></div>
 
     <div class="info-panel">
       <span id="update-time">Dati non disponibili</span>
@@ -32,182 +40,60 @@
     <div class="info-box" id="data">
       Nessun dato disponibile
     </div>
-      <!-- <div class="main">
-        <div class="map-head">
-          <div class="info">
-          </div>
-          <div id="data"></div>
-          <div class="map-container"> -->
-            <!-- <div class="color-bar">
-              <img id="colorbar-image" src="Image/colorbar_temperature.png" alt="Color Bar" />
-            </div> -->
-          <!-- </div>
-        </div> -->
-                
-        <!-- <div class="panel panel-form">
-          <div class="modal-content">
-            <span class="close" onclick="closeModal('formModal')">&times;</span>
-            <div class="form">
-              <div class="time">
-                <span id="update-time">Seleziona l'orario che vuoi: </span>
-                <input
-                  type="range"
-                  id="timeSlider"
-                  min="0"
-                  max="23"
-                  value="0"
-                  step="1"
-                />
-                <span id="selectedTime">Orario selezionato: 1</span>
-              </div>
-              <div>
-                <label>
-                  <input
-                    type="radio"
-                    name="forecastType"
-                    value="wind"
-                    checked
-                  />
-                  Wind
-                </label>
-                <label>
-                  <input type="radio" name="forecastType" value="temperature" />
-                  T
-                </label>
 
-                <button id="loadBtn" onclick="loadForecast()">
-                  Carica dati
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
-      
-
-      <div class="forecast-type-panel">
-        <label>
-          <input type="radio" name="forecastType" value="wind" checked /> Wind
-        </label>
-        <label>
-          <input type="radio" name="forecastType" value="temperature" /> T
-        </label>
+    <div class="forecast-type-panel position-fixed end-0 mt-5 me-4 bg-white bg-opacity-75 rounded-3 shadow border border-primary px-4 py-3 d-flex flex-column gap-2 align-items-end" style="z-index: 40; top: 70px;">
+      <div class="form-check form-check-inline mb-1">
+        <input class="form-check-input" type="radio" name="forecastType" id="radioWind" value="wind" checked />
+        <label class="form-check-label fw-semibold text-primary" for="radioWind">Wind</label>
       </div>
+      <div class="form-check form-check-inline mb-1">
+        <input class="form-check-input" type="radio" name="forecastType" id="radioTemp" value="temperature" />
+        <label class="form-check-label fw-semibold text-danger" for="radioTemp">T</label>
+      </div>
+    </div>
 
-      <div id="map"></div>
+    <div class="container-fluid p-0" style="height: 100vh;">
+      <div id="map" style="height: 100%; min-height: 500px;"></div>
+    </div>
 
-      <div class="timeline-bar">
-        <div class="timeline-slider">
+    <div class="timeline-bar bg-light shadow-sm py-3 px-4 rounded-3 border border-primary" style="max-width: 600px; margin: 0 auto; position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; z-index: 20;">
+      <form class="row align-items-center g-2">
+        <div class="col-auto">
+          <label for="timeSlider" class="form-label fw-bold mb-0">Orario:</label>
+        </div>
+        <div class="col position-relative">
+          <span id="selectedTime" class="badge bg-primary fs-6 position-absolute translate-middle-x" style="top: -32px; left: 50%; z-index: 2;">Orario selezionato: 1</span>
           <input
             type="range"
+            class="form-range timeline-range w-100"
             id="timeSlider"
             min="0"
             max="23"
             value="0"
             step="1"
+            style="width: 100%; flex: 1 1 0%; min-width: 0; max-width: 100%; display: block;"
           />
-          <span id="selectedTime">Orario selezionato: 1</span>
+          <div class="timeline-ticks w-100 d-flex justify-content-between px-1 mt-1">
+            <span>0</span>
+            <span>3</span>
+            <span>6</span>
+            <span>9</span>
+            <span>12</span>
+            <span>15</span>
+            <span>18</span>
+            <span>21</span>
+            <span>23</span>
+          </div>
         </div>
-      </div>
-
-      <!-- <div class="panel panel-download">
-        <div class="download">
-          <table border="1">
-            <thead>
-              <tr>
-                <th>File</th>
-                <th>Dimensioni</th>
-                <th>Data</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><a href="files/WRF1HOUR.nc" download>WRF1HOUR.nc</a></td>
-                <td>15 KB</td>
-                <td>06/05/2025</td>
-              </tr>
-              <tr>
-                <td><a href="files/example2.pdf" download>WRFGrib.grb</a></td>
-                <td>1.2 MB</td>
-                <td>05/05/2025</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div> -->
-
-      <div class="download-box">
-        <table border="1">
-          <thead>
-            <tr>
-              <th>File</th>
-              <th>Dimensioni</th>
-              <th>Data</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><a href="files/WRF1HOUR.nc" download>WRF1HOUR.nc</a></td>
-              <td>15 KB</td>
-              <td>06/05/2025</td>
-            </tr>
-            <tr>
-              <td><a href="files/example2.pdf" download>WRFGrib.grb</a></td>
-              <td>1.2 MB</td>
-              <td>05/05/2025</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      
-
-
-      <div class="about">
-        <h2>About Meteo Su misura</h2>
-        <p>
-          Meteo su Misura è una piattaforma progettata per automatizzare
-          l'intero processo di esecuzione di modelli meteorologici ad alta
-          risoluzione per specifiche aree geografiche. In particolare, integra
-          il Global Forecast System (GFS) e il Weather Research and Forecasting
-          Model (WRF), semplificando tutte le fasi operative: dal download dei
-          dati globali alla loro pre-elaborazione e conversione in formati
-          compatibili, fino all'esecuzione delle simulazioni locali ad alta
-          risoluzione.
-        </p>
-        <p>
-          La piattaforma è stata utilizzata per eseguire e visualizzare
-          simulazioni meteorologiche del Golfo di Salerno. I risultati delle
-          simulazioni sono presentati in un formato chiaro e intuitivo,
-          consentendo agli utenti di selezionare il periodo di interesse e di
-          scaricare i file di output nei formati NetCDF e GRIB.
-        </p>
-        <p>
-          Per ulteriori informazioni sull'installazione e sull'utilizzo di Meteo
-          su Misura, è possibile consultare la repository
-          <a href="">WRF4Salerno</a>, dove sono disponibili le istruzioni
-          dettagliate.
-        </p>
-      </div>
+      </form>
     </div>
 
-    <div class="footer">
-      <div class="footer">
-        <p>
-          Per ulteriori informazioni, visita la repository ufficiale su
-          <a href="https://github.com/tuo-username/WRF4Salerno" target="_blank"
-            >GitHub</a
-          >.
-        </p>
-        <p>
-          I dati meteorologici sono forniti dal
-          <a href="https://www.ncep.noaa.gov/" target="_blank"
-            >National Centers for Environmental Prediction (NCEP)</a
-          >.
-        </p>
-        <p>&copy; 2025 Meteo Su Misura. Tutti i diritti riservati.</p>
-      </div>
-    </div>
+    <!-- Nuova icona avatar download -->
+    <a href="json/wrfoutput.grib2" download class="download-avatar" title="Scarica il file GRIB2">
+      <i class="bi bi-cloud-arrow-down-fill"></i>
+    </a>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <link
       rel="stylesheet"

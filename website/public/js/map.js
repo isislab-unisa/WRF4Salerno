@@ -219,7 +219,7 @@ $.getJSON("json/config.json", function (data) {
         const resolution_scale=data["resolution_scale"];
         const initial_bounds=data["initial_bounds"];
         document.querySelector(
-            ".logo h1"
+            ".logo"
           ).textContent = `MeteoSuMisura:${area}`;
         
         document.querySelector(
