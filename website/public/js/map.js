@@ -205,12 +205,14 @@ function loadWind( time, bounds,data) {
 }
 
 document.querySelector("#timeSlider").addEventListener("change", (e) => {
-  const hour = Number(e.target.value) + 1;
-  document.getElementById("selectedTime").textContent =
-    "Orario Selezionato: " + hour;
+  setTime(e.target.value);
 });
 
-
+function setTime(value ){
+  const hour = Number(value);
+  document.getElementById("selectedTime").textContent =
+    "Orario Selezionato: " + hour.toString().padStart(2, "0")+":00";
+}
 
 $.getJSON("json/config.json", function (data) {
         const area=data["area"];
@@ -237,5 +239,6 @@ $.getJSON("json/config.json", function (data) {
 
       });
 
+setTime(document.querySelector("#timeSlider").value);
 loadInfo();
 loadForecast();
