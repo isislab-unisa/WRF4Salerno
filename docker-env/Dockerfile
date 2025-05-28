@@ -51,17 +51,17 @@ RUN python3 -m pip install -r /wrf/requirements.txt
 COPY install_WRF.sh /wrf/install.sh
 RUN chmod +x /wrf/install.sh && /wrf/install.sh
 
-# Copy the WRF source code
-COPY install_GFS.sh /wrf/WRF/install_GFS.sh
-RUN chmod +x /wrf/WRF/install_GFS.sh
-COPY cleaner.sh /wrf/WRF/cleaner.sh
-RUN chmod +x /wrf/WRF/cleaner.sh
-COPY setup_namelist.sh /wrf/WRF/setup_namelist.sh
-RUN chmod +x /wrf/WRF/setup_namelist.sh
-COPY wrftoImage.py /wrf/WRF/wrftoImage.py
-COPY WRFtoMapData.py /wrf/WRF/WRFtoMapData.py
-COPY run_WRFSystem.sh /wrf/WRF/run.sh
-RUN chmod +x /wrf/WRF/run.sh
+# Copia tutti gli script di gestione e la cartella website
+COPY docker-env/ /wrf/WRF/
+COPY docker-env/website/ /wrf/WRF/website/
 
+RUN chmod +x /wrf/WRF/*.sh
+RUN chmod +x /wrf/WRF/*.sh
 
-ENTRYPOINT ["/bin/bash"]
+WORKDIR /wrf/WRF/website
+RUN npm install
+RUN npm start
+
+WORKDIR /wrf
+
+ENTRYPOINT ["/wrf/WRF/docker-env/entrypoint.sh"]

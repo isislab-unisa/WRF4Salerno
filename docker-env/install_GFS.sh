@@ -5,7 +5,7 @@
 set -ex
 
 # Directory dove verranno salvati i dati GFS
-DATA_DIR="DATA"
+DATA_DIR="/wrf/WRF/DATA"
 
 # Calcola la data del giorno precedente
 YESTERDAY=$(date -d "yesterday" +"%Y%m%d")

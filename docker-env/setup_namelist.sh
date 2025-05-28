@@ -31,8 +31,8 @@ END_DAY=$(date -d "$TODAY $HOUR_PREDICTION hour" +"%d")
 END_HOUR=$(date -d "$TODAY $HOUR_PREDICTION hour" +"%H")
 
 
-NAMELIST_WPS="WPS/namelist.wps"
-NAMELIST_INPUT="WRF/run/namelist.input"
+NAMELIST_WPS="/wrf/WRF/WPS/namelist.wps"
+NAMELIST_INPUT="/wrf/WRF/WRF/run/namelist.input"
 
 # Aggiorna il file namelist.wps
 if [ -f "$NAMELIST_WPS" ]; then

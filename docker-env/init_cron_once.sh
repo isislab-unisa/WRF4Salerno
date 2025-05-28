@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # File di lock per evitare di settare il cron più volte
-LOCKFILE="/wrf/WRF/docker-env/.cron_initialized"
+LOCKFILE="/wrf/WRF/.cron_initialized"
 
 if [ ! -f "$LOCKFILE" ]; then
     echo "Prima esecuzione: setto il crontab..."

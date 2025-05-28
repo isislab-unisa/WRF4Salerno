@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# filepath: c:\Users\Asus\Desktop\DOCKERSCRIPT\run_WRF.sh
-# Esegui cleaner.sh per pulire i file generati precedentemente
+cd /wrf/WRF || { echo "Errore: impossibile accedere alla directory WRF."; exit 1; }
+
+
 echo "Esecuzione di cleaner.sh..."
 ./cleaner.sh
 if [ $? -ne 0 ]; then
