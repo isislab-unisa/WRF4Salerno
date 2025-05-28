@@ -110,7 +110,6 @@ function loadForecast() {
   });
 }
 
-//TODO: aggiungere la gestione dell'orario
 function loadWidgetInfo(typeofData, data) {
   map.on("mousemove", function (e) {
     let { lat, lng } = e.latlng; // Ottieni latitudine e longitudine
@@ -231,7 +230,7 @@ $.getJSON("json/config.json", function (data) {
         - Previsioni di ${hour_prediction} ore<br> 
         - Risoluzione: ${resolution} ${resolution_scale} `;
         ;
-        map.setView(initial_bounds,9)
+        map.setView(initial_bounds,8)
 
         document.querySelector("#timeSlider").max = hour_prediction-1;
         
