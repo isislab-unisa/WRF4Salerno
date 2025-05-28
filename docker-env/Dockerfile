@@ -33,6 +33,7 @@ RUN apt-get install -y libpng-dev
 RUN apt-get install -y libjasper-dev
 RUN apt-get install -y libssl-dev
 RUN apt-get install -y cron
+RUN apt-get install -y nodejs npm
 
 # Create directories
 RUN mkdir -p /wrf 
