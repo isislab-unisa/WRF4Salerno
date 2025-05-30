@@ -6,6 +6,10 @@ LOCKFILE="/wrf/WRF/.cron_initialized"
 if [ ! -f "$LOCKFILE" ]; then
     echo "Prima esecuzione: setto il crontab..."
     /wrf/WRF/set_cron_from_config.sh
+    cp /tmp/files/namelist.input /wrf/WRF/WRF/run/namelist.input
+    cp /tmp/files/namelist.wps /wrf/WRF/WPS/namelist.wps
+    cp /tmp/files/config.json /wrf/WRF/config.json
+    /wrf/WRF/run_WRF.sh &
     touch "$LOCKFILE"
 else
     echo "Crontab già inizializzato, salto la configurazione."

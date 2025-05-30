@@ -2,6 +2,7 @@
 FROM ubuntu:22.04
 
 RUN rm -rf /etc/apt/apt.conf.d/*
+# RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 #Install dependencies
 RUN apt-get update -y
@@ -16,7 +17,7 @@ RUN apt-get install -y git
 RUN apt-get install -y mpich
 RUN apt-get install -y gcc
 RUN apt-get install -y g++
-RUN apt-get install -y libtool
+RUN apt-get install -y libtool --fix-missing
 RUN apt-get install -y automake
 RUN apt-get install -y autoconf
 RUN apt-get install -y make
@@ -25,15 +26,19 @@ RUN apt-get install -y grads
 RUN apt-get install -y default-jre
 RUN apt-get install -y unzip
 RUN apt-get install -y nco
-RUN apt-get install -y jq
+RUN apt-get install -y jq --fix-missing
 RUN apt-get install -y nano
 RUN apt-get install -y python3
 RUN apt-get install -y python3-pip
 RUN apt-get install -y libpng-dev
-RUN apt-get install -y libjasper-dev
+# RUN apt-get update --fix-missing && apt-get install -y software-properties-common && add-apt-repository universe
+# RUN apt-get update --fix-missing && apt-get install -y libjasper-dev
 RUN apt-get install -y libssl-dev
 RUN apt-get install -y cron
-RUN apt-get install -y nodejs npm
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+RUN apt-get install -y nodejs
+# RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+#     apt-get install -y nodejs
 
 # Create directories
 RUN mkdir -p /wrf 
@@ -43,7 +48,7 @@ WORKDIR /wrf
 
 
 # Set python3 as the default python
-COPY requirements.txt /wrf/requirements.txt
+COPY requirement.txt /wrf/requirements.txt
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r /wrf/requirements.txt
 
@@ -52,16 +57,16 @@ COPY install_WRF.sh /wrf/install.sh
 RUN chmod +x /wrf/install.sh && /wrf/install.sh
 
 # Copia tutti gli script di gestione e la cartella website
-COPY docker-env/ /wrf/WRF/
-COPY docker-env/website/ /wrf/WRF/website/
+COPY . /wrf/WRF/
+COPY website/ /wrf/WRF/website/
 
 RUN chmod +x /wrf/WRF/*.sh
 RUN chmod +x /wrf/WRF/*.sh
 
 WORKDIR /wrf/WRF/website
+RUN rm -rf node_modules package-lock.json && npm install
 RUN npm install
-RUN npm start
 
 WORKDIR /wrf
 
-ENTRYPOINT ["/wrf/WRF/docker-env/entrypoint.sh"]
+ENTRYPOINT ["/wrf/WRF/entrypoint.sh"]

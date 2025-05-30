@@ -31,7 +31,7 @@ echo "Esecuzione completata con successo."
 PREDICTION_DATE=$(date +"%Y%m%d")
 RUNTIME_DATE=$(date -d "yesterday" +"%Y%m%d")
 
-cat > website/public/json/datasetinfo.json <<EOF
+cat > public/json/datasetinfo.json <<EOF
 {
     "dataprediction": "$PREDICTION_DATE",
     "runtime": "$RUNTIME_DATE"

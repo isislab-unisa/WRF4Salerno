@@ -4,9 +4,9 @@
 set -e
 
 # Percorsi attesi
-NML_INPUT="/wrf/WRF/WRF/run/namelist.input"
-NML_WPS="/wrf/WRF/WPS/namelist.wps"
-CONFIG="/wrf/WRF/config.json"
+NML_INPUT="/tmp/files/namelist.input"
+NML_WPS="/tmp/files/namelist.wps"
+CONFIG="/tmp/files/config.json"
 CONFIG_DEST="/wrf/WRF/website/public/json/config.json"
 
 # Controllo presenza file
@@ -21,11 +21,12 @@ done
 cp "$CONFIG" "$CONFIG_DEST"
 
 # Inizializza il cron solo la prima volta
-/wrf/WRF/docker-env/init_cron_once.sh
+/wrf/WRF/init_cron_once.sh
 
 # Avvia il servizio cron (se necessario)
 service cron start
 
 # Avvia il sito
 cd /wrf/WRF/website/
+npm install
 npm start
