@@ -310,19 +310,22 @@ def generate_colorbar_only(output_file="colorbar_temperature.png"):
     plt.close(fig)
 
 def generate_minimal_precipitation_image(ds, time_index=0, output_file="minimal_precipitation_plot.png"):
-
     lats = ds['XLAT'].isel(Time=time_index).values
     lons = ds['XLONG'].isel(Time=time_index).values
     precipitation = ds['RAINC'].isel(Time=time_index).values
 
-    fig, ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': ccrs.PlateCarree()})
-    ax.set_extent([lons.min(), lons.max(), lats.min(), lats.max()], crs=ccrs.PlateCarree())
+    # Crea una maschera per rendere trasparente dove la precipitazione è 0
+    masked_precip = np.ma.masked_where(precipitation == 0, precipitation)
 
-    ax.add_feature(cfeature.LAND, edgecolor="black", facecolor="lightgray")
-    ax.add_feature(cfeature.BORDERS, linestyle=":")
-    ax.add_feature(cfeature.COASTLINE)
+    fig, ax = plt.subplots(figsize=(12, 8), dpi=600)
+    ax.set_xlim(lons.min(), lons.max())
+    ax.set_ylim(lats.min(), lats.max())
 
-    precip_plot = ax.contourf(lons, lats, precipitation, cmap='Blues', levels=20, transform=ccrs.PlateCarree())
+    # Usa una normalizzazione generica per la precipitazione (ad esempio 0-40 mm)
+    precip_plot = ax.contourf(
+        lons, lats, masked_precip, cmap='Blues', levels=20,
+        norm=plt.Normalize(vmin=0, vmax=40)
+    )
     
     # Rimuovi assi e bordi
     ax.axis('off')
@@ -331,7 +334,7 @@ def generate_minimal_precipitation_image(ds, time_index=0, output_file="minimal_
     plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
     # Salva la figura
-    plt.savefig(output_file, dpi=300, bbox_inches='tight', pad_inches=0)
+    plt.savefig(output_file, dpi=600, bbox_inches='tight', pad_inches=0, transparent=True)
 
     # Chiudi la figura
     plt.close(fig)

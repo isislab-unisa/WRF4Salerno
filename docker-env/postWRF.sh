@@ -30,12 +30,14 @@ echo "Esecuzione completata con successo."
 # Aggiorna datasetinfo.json con la data della predizione e il giorno di lancio
 PREDICTION_DATE=$(date +"%Y%m%d")
 RUNTIME_DATE=$(date -d "yesterday" +"%Y%m%d")
+END_HOUR=$(date -d "yesterday" +"%H:%M")
 
 cat > public/json/datasetinfo.json <<EOF
 {
     "dataprediction": "$PREDICTION_DATE",
     "runtime": "$RUNTIME_DATE"
+    "endhour","$END_HOUR"
 }
 EOF
 
-echo "Aggiornato datasetinfo.json con dataprediction=$PREDICTION_DATE e runtime=$RUNTIME_DATE"
+echo "Aggiornato datasetinfo.json con dataprediction=$PREDICTION_DATE, runtime=$RUNTIME_DATE e endhour=$END_HOUR."

@@ -48,19 +48,23 @@ def create_field(ds, output_file:str, forecast_time:pd.Timestamp,date:str = None
     features = []
 
 
+    # Estrai variabili di pioggia
+    rain_values = ds["RAINC"].isel(Time=forecast_time).values
+    rainn_values = ds["RAINNC"].isel(Time=forecast_time).values
+    total_rain = rain_values + rainn_values
+
     for j in range(nj):
         for i in range(ni):
-            temperature = (float(t_values[j, i])-273.15) # Convert to Fahrenheit
-            # color = temperature_to_color(temperature)
-
-            # rain = float(total_rain[j, i])
+            temperature = (float(t_values[j, i])-273.15) # Convert to Celsius
+            rain = float(total_rain[j, i])
             point = Point(float(lon[j, i]), float(lat[j, i]))
-
             features.append({
                     "geometry": point,
                     "temperature": round(temperature, 2),
                     "u_values" : round(float(u_values[j, i]),2),
                     "v_values" : round(float(v_values[j, i]),2),
+                    "rain_accum": round(rain, 2),
+                    "rain": round(float(rain_values[j, i]), 2),
                     "time": forecast_time,
                     "latitude": round(float(lat[j, i]),2),
                    "longitude": round(float(lon[j, i]),2),

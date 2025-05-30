@@ -1,4 +1,3 @@
-
 const samplingRate = 5; // Cambia questo valore per regolare il sampling (es. ogni 5 elementi)
 
 // LOADING MAP
@@ -81,6 +80,8 @@ function loadForecastHelper(data) {
     loadTemperature( time,bounds, data);
   } else if (forecastType === "wind") {
     loadWind( time, bounds, data);
+  } else if (forecastType === "rain") {
+    loadRain( time, bounds, data);
   }
 
   // map.setMaxBounds(bounds);
@@ -121,6 +122,8 @@ function loadWidgetInfo(typeofData, data) {
       return featureLat === lat && featureLng === lng;
     });
     if (matchingFeature) {
+      document.getElementById("data").style.visibility = "visible";
+
       if (typeofData === "temperature") {
         const data = matchingFeature.properties.temperature;
         const info = `Lat: ${lat}, Long: ${lng}, Temperatura: ${data.toFixed(
@@ -136,9 +139,16 @@ function loadWidgetInfo(typeofData, data) {
           2
         )} m/s`;
         document.getElementById("data").textContent = info;
+      } else if (typeofData === "rain") {
+        // Mostra info pioggia (rain: istantanea, rain_accum: accumulo totale)
+        const rain = matchingFeature.properties.rain;
+        const rainAccum = matchingFeature.properties.rain_accum;
+        const info = `Lat: ${lat}, Long: ${lng}, Pioggia: ${rain.toFixed(2)} mm, Accumulo: ${rainAccum.toFixed(2)} mm`;
+        document.getElementById("data").textContent = info;
+        document.getElementById("data").style.visibility = "visible";
       }
     } else {
-      document.getElementById("data").textContent = "Nessun dato disponibile";
+      document.getElementById("data").style.visibility = "hidden";
     }
   });
 }
@@ -148,18 +158,27 @@ function loadInfo() {
   $.getJSON("json/datasetinfo.json", function (data) {
     const validDate = data["dataprediction"];
     const validRuntime = data["runtime"];
+    const endhour = data["endhour"];
 
     // Format dataprediction (YYYYMMDD → DD/MM/YYYY)
     const formattedDate = `${validDate.slice(6, 8)}/${validDate.slice(4, 6)}/${validDate.slice(0, 4)}`;
-
-    // Format runtime (YYYYMMDDHH → DD/MM/YYYY HH:00)
-    let formattedRuntime = `${validRuntime.slice(6, 8)}/${validRuntime.slice(4, 6)}/${validRuntime.slice(0, 4)}`;
-    if (validRuntime && validRuntime.length >= 10) {
-      formattedRuntime = `${validRuntime.slice(6, 8)}/${validRuntime.slice(4, 6)}/${validRuntime.slice(0, 4)} ${validRuntime.slice(8, 10)}:00`;
+    // Format runtime (YYYYMMDD or YYYYMMDDHH → DD/MM/YYYY [HH:00])
+    let formattedRuntime = "Data non valida";
+    if (typeof validRuntime === "string" && validRuntime.length >= 8) {
+      const day = validRuntime.slice(6, 8);
+      const month = validRuntime.slice(4, 6);
+      const year = validRuntime.slice(0, 4);
+      if (validRuntime.length >= 10) {
+        const hour = validRuntime.slice(8, 10);
+        formattedRuntime = `${day}/${month}/${year} ${hour}:00`;
+      } else {
+        formattedRuntime = `${day}/${month}/${year}`;
+      }
     }
 
+
     // Testo su due righe
-    const infoText = `Previsioni del - ${formattedDate}<br>Predizione eseguita - ${formattedRuntime}`;
+    const infoText = `Previsioni del - ${formattedDate}<br>Predizione eseguita - ${formattedRuntime}<br>Orario di termine - ${endhour}`;
     dateInput.innerHTML = infoText;
     dateInput.value = infoText;
   }).fail(function () {
@@ -203,22 +222,77 @@ function loadWind( time, bounds,data) {
 
 }
 
+function loadRain( time, bounds,data) {
+
+  var imageUrl = "Image/minimal_rain_plot_" + time + ".png";
+
+  // Aggiungi l'immagine come layer principale
+  // L.imageOverlay(imageUrl, imageBounds).addTo(map);
+  addImageOverlay(imageUrl, bounds); // Aggiungi l'immagine come layer principale
+  
+  loadWidgetInfo("rain", data); // Aggiungi i marker per la pioggia
+
+}
+
 document.querySelector("#timeSlider").addEventListener("change", (e) => {
   setTime(e.target.value);
 });
 
-function setTime(value ){
-  const hour = Number(value);
+function setTime(value) {
+  const hour = Number(value) % 24;
   document.getElementById("selectedTime").textContent =
-    "Orario Selezionato: " + hour.toString().padStart(2, "0")+":00";
+    "Orario Selezionato: " + hour.toString().padStart(2, "0") + ":00";
 }
 
-$.getJSON("json/config.json", function (data) {
-        const area=data["area"];
-        const hour_prediction=data["hour_prediction"];
-        const resolution=data["resolution"];
-        const resolution_scale=data["resolution_scale"];
-        const initial_bounds=data["initial_bounds"];
+// Esempio: runtime = "2024060512" (YYYYMMDDHH), hour_prediction = 48
+function generateTimeline(runtime, hour_prediction) {
+  const ticksContainer = document.querySelector('.timeline-ticks');
+  ticksContainer.innerHTML = ""; // Svuota i tick
+
+  // Parsing della data di partenza
+  const year = parseInt(runtime.slice(0, 4));
+  const month = parseInt(runtime.slice(4, 6)) - 1; // JS: 0-based
+  const day = parseInt(runtime.slice(6, 8));
+  const hour = runtime.length >= 10 ? parseInt(runtime.slice(8, 10)) : 0;
+
+  // Genera tick per ogni ora
+  for (let i = 0; i < hour_prediction; i++) {
+    const date = new Date(year, month, day, hour + i);
+    // Mostra solo alcune label (es: ogni 6 ore) per non affollare
+    if (i % 6 === 0 || i === 0 || i === hour_prediction - 1) {
+      const label = date.toLocaleString('it-IT', {
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+      }).replace(':00', ''); // "05/06, 12"
+      const span = document.createElement('span');
+      span.textContent = label;
+      ticksContainer.appendChild(span);
+    } else {
+      const span = document.createElement('span');
+      span.textContent = '';
+      ticksContainer.appendChild(span);
+    }
+  }
+
+  // Aggiorna lo slider
+  const slider = document.getElementById('timeSlider');
+  slider.max = hour_prediction - 1;
+
+  slider.addEventListener('input', function() {
+  const idx = parseInt(slider.value);
+  const date = new Date(year, month, day, hour + idx);
+  document.getElementById('selectedTime').textContent =
+    "Orario selezionato: " + date.toLocaleString('it-IT', {
+      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+    }).replace(':00', '');
+});
+}
+
+$.getJSON("json/config.json", function (config) {
+        const area=config["area"];
+        const hour_prediction=config["hour_prediction"];
+        const resolution=config["resolution"];
+        const resolution_scale=config["resolution_scale"];
+        const initial_bounds=config["initial_bounds"];
         document.querySelector(
             ".logo"
           ).textContent = `MeteoSuMisura:${area}`;
@@ -234,6 +308,13 @@ $.getJSON("json/config.json", function (data) {
 
         document.querySelector("#timeSlider").max = hour_prediction-1;
         
+        $.getJSON("json/datasetinfo.json", function (data) {
+          const validDate = data["dataprediction"];
+          console.log("Valid date:", validDate);
+          // Genera la timeline
+          generateTimeline(validDate, config.hour_prediction);
+        })
+
       }).fail(function () {
 
       });
@@ -241,3 +322,46 @@ $.getJSON("json/config.json", function (data) {
 setTime(document.querySelector("#timeSlider").value);
 loadInfo();
 loadForecast();
+
+$(document).ready(function () {
+  // Timeline play/stop logic
+  let timelineInterval = null;
+  const $slider = $('#timeSlider');
+  const $playBtn = $('#timelinePlayBtn');
+  const $playIcon = $('#timelinePlayIcon');
+
+  $playBtn.on('click', function () {
+    if (timelineInterval) {
+      // Stop
+      clearInterval(timelineInterval);
+      timelineInterval = null;
+      $playIcon.removeClass('bi-pause-fill').addClass('bi-play-fill');
+    } else {
+      // Play
+      $playIcon.removeClass('bi-play-fill').addClass('bi-pause-fill');
+      timelineInterval = setInterval(function () {
+        let val = parseInt($slider.val(), 10);
+        let max = parseInt($slider.attr('max'), 10);
+        if (val < max) {
+          $slider.val(val + 1).trigger('input');
+          setTime(val + 1); // AGGIUNTA: aggiorna la label orario selezionato
+
+        } else {
+          $slider.val(0).trigger('input');
+          setTime(0); // AGGIUNTA: aggiorna la label orario selezionato
+
+        }
+      }, 600); // 600ms per step
+    }
+  });
+
+  // Stop animation if user interacts with slider manually
+  $slider.on('mousedown touchstart', function () {
+    if (timelineInterval) {
+      clearInterval(timelineInterval);
+      timelineInterval = null;
+      $playIcon.removeClass('bi-pause-fill').addClass('bi-play-fill');
+    }
+  });
+
+});
