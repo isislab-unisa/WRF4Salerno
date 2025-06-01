@@ -63,6 +63,9 @@ COPY website/ /wrf/WRF/website/
 RUN chmod +x /wrf/WRF/*.sh
 RUN chmod +x /wrf/WRF/*.sh
 
+WORKDIR /wrf/WRF
+RUN /wrf/WRF/download_WPS_GEOG.sh 
+
 WORKDIR /wrf/WRF/website
 RUN rm -rf node_modules package-lock.json && npm install
 RUN npm install

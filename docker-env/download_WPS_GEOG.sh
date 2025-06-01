@@ -4,7 +4,7 @@
 set -e
 
 # Directory di destinazione
-DEST_DIR="WPS_GEOG"
+DEST_DIR="."
 
 # URL ufficiale
 WPS_GEOG_URL="https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_high_res_mandatory.tar.gz"

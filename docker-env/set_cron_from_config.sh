@@ -1,7 +1,7 @@
 #!/bin/bash
 # filepath: c:\Users\Asus\Desktop\WRF\WRF4Salerno\docker-env\set_cron_from_config.sh
 
-CONFIG="config.json"
+CONFIG="/wrf/WRF/config.json"
 
 SCRIPT_PATH="/wrf/WRF/run_WRF.sh"
 
