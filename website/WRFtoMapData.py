@@ -78,7 +78,7 @@ def create_field(ds, output_file:str, forecast_time:pd.Timestamp,date:str = None
     gdf.to_file(output_file, driver='GeoJSON')
 
 if __name__ == "__main__":
-    wrf_file= "WRF1HOUR.nc"
+    wrf_file= "wrfoutput.nc"
     ds = xr.open_dataset(wrf_file)
     time_str = ds["Times"].isel(Time=0).values.item().decode("utf-8")
     forecast_time = pd.to_datetime(time_str.replace("_", " "))

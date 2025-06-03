@@ -344,12 +344,12 @@ $(document).ready(function () {
         let max = parseInt($slider.attr('max'), 10);
         if (val < max) {
           $slider.val(val + 1).trigger('input');
-          setTime(val + 1); // AGGIUNTA: aggiorna la label orario selezionato
-
+          setTime(val + 1); // aggiorna la label orario selezionato
+          loadForecast(); // aggiorna la mappa
         } else {
           $slider.val(0).trigger('input');
-          setTime(0); // AGGIUNTA: aggiorna la label orario selezionato
-
+          setTime(0); // aggiorna la label orario selezionato
+          loadForecast(); // aggiorna la mappa
         }
       }, 600); // 600ms per step
     }

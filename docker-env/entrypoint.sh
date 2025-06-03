@@ -6,8 +6,8 @@ set -e
 # Percorsi attesi
 NML_INPUT="/tmp/files/namelist.input"
 NML_WPS="/tmp/files/namelist.wps"
-CONFIG="/tmp/files/config.json"
-CONFIG_DEST="/wrf/WRF/website/public/json/config.json"
+# CONFIG="/tmp/files/config.json"
+# CONFIG_DEST="/wrf/WRF/website/public/json/config.json"
 
 # Controllo presenza file
 for f in "$NML_INPUT" "$NML_WPS" "$CONFIG"; do
@@ -18,7 +18,7 @@ for f in "$NML_INPUT" "$NML_WPS" "$CONFIG"; do
 done
 
 # Copia config.json nella cartella pubblica del sito
-cp "$CONFIG" "$CONFIG_DEST"
+# cp "$CONFIG" "$CONFIG_DEST"
 
 # Inizializza il cron solo la prima volta
 /wrf/WRF/init_cron_once.sh

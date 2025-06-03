@@ -3,7 +3,7 @@
   "hour_prediction": 24,
   "run_interval":"daily",
   "run_time":"00:00",
-  "resolution": 1000,
-  "resolution_scale":"m",
+  "resolution": 1,
+  "resolution_scale":"km",
   "initial_bounds":[40.29,14.90]
 }
