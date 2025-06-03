@@ -135,9 +135,8 @@ function loadWidgetInfo(typeofData, data) {
           matchingFeature.properties.u_values ** 2 +
             matchingFeature.properties.v_values ** 2
         );
-        const info = `Lat: ${lat}, Long: ${lng}, Velocità: ${data.toFixed(
-          2
-        )} m/s`;
+        const knots = data * 1.94384; // 1 m/s = 1.94384 knot
+        const info = `Lat: ${lat}, Long: ${lng}, Velocità: ${knots.toFixed(2)} kt`;
         document.getElementById("data").textContent = info;
       } else if (typeofData === "rain") {
         // Mostra info pioggia (rain: istantanea, rain_accum: accumulo totale)
