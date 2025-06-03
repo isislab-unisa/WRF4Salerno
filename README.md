@@ -7,7 +7,8 @@
 The project presents **MeteoSuMisura**, a platform capable of automating the entire process of running high-resolution weather models for a specific geographic area.
 In particular, it integrates the [**Global Forecast System (GFS)**](https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast) and the [**Weather Research and Forecasting Model (WRF)**](https://github.com/wrf-model/WRF), automating all operational phases: from downloading global data, to their pre-processing and conversion into compatible formats, up to running local high-resolution simulations.
 
-The platform offers an interactive web visualization system that makes consulting forecasts intuitive.
+The platform offers an interactive web visualization system that makes consulting forecasts intuitive. The web interface is built using modern technologies such as [**Leaflet**](https://leafletjs.com/) for interactive mapping, [**Bootstrap**](https://getbootstrap.com/) for responsive design, and [**jQuery**](https://jquery.com/) for dynamic UI interactions. For the base map, [**OpenStreetMap**](https://www.openstreetmap.org/) tiles are used via the Stadia Maps tile server, ensuring a detailed and up-to-date cartographic background. These tools allow users to explore weather data, navigate the forecast timeline, and interact with high-resolution meteorological maps in a user-friendly environment.
+
 Finally, the platform has been used for running and visualizing weather simulations for the Gulf of Salerno.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
