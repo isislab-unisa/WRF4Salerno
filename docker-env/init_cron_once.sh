@@ -9,7 +9,7 @@ if [ ! -f "$LOCKFILE" ]; then
     cp /tmp/files/namelist.wps /wrf/WRF/WPS/namelist.wps
     cp /tmp/files/config.json /wrf/WRF/config.json
     /wrf/WRF/set_cron_from_config.sh
-    /wrf/WRF/run_WRF.sh &
+    /wrf/WRF/run_interval.sh &
     touch "$LOCKFILE"
 else
     echo "Crontab già inizializzato, salto la configurazione."

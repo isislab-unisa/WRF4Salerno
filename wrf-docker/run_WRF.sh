@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# filepath: c:\Users\Asus\Desktop\DOCKERSCRIPT\run_WRF.sh
-# Esegui cleaner.sh per pulire i file generati precedentemente
 echo "Esecuzione di cleaner.sh..."
 ./cleaner.sh
 if [ $? -ne 0 ]; then

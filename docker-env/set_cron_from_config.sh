@@ -3,7 +3,7 @@
 
 CONFIG="/wrf/WRF/config.json"
 
-SCRIPT_PATH="/wrf/WRF/run_WRF.sh"
+SCRIPT_PATH="/wrf/WRF/run_interval.sh"
 
 # Leggi i parametri dal JSON
 INTERVAL=$(jq -r '.run_interval' "$CONFIG")
