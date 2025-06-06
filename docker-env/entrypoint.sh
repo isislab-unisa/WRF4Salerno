@@ -6,7 +6,7 @@ set -e
 # Percorsi attesi
 NML_INPUT="/tmp/files/namelist.input"
 NML_WPS="/tmp/files/namelist.wps"
-# CONFIG="/tmp/files/config.json"
+CONFIG="/tmp/files/config.json"
 # CONFIG_DEST="/wrf/WRF/website/public/json/config.json"
 
 # Controllo presenza file
