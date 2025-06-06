@@ -85,7 +85,7 @@ Follow these steps to launch the **MeteoSuMisura** platform from scratch using D
      -v $(pwd)/docker-env/WRF/run/namelist.input:/tmp/files/namelist.input \
      -v $(pwd)/docker-env/WPS/namelist.wps:/tmp/files/namelist.wps \
      -v $(pwd)/docker-env/config.json:/tmp/files/config.json \
-     <container-name>
+     meteosumisura
    ```
 
 5. **Access the web interface**
