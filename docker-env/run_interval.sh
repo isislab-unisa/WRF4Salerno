@@ -8,6 +8,6 @@ echo "Esecuzione run_WRF.sh..."
 
 # Se run_WRF.sh termina con successo, lancia postWRF.sh
 echo "Esecuzione postWRF.sh..."
-/wrf/WRF/postWRF.sh
+/wrf/WRF/postWRF.sh > /wrf/WRF/website/public/postWRF.log 2>&1
 
 echo "Esecuzione completa di run_WRF.sh e postWRF.sh."
