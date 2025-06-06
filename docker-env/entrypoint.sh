@@ -1,7 +1,6 @@
 #!/bin/bash
 # filepath: /wrf/WRF/entrypoint.sh
 
-set -e
 
 # Percorsi attesi
 NML_INPUT="/tmp/files/namelist.input"
