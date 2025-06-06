@@ -8,6 +8,7 @@ if [ ! -f "$LOCKFILE" ]; then
     cp /tmp/files/namelist.input /wrf/WRF/WRF/run/namelist.input
     cp /tmp/files/namelist.wps /wrf/WRF/WPS/namelist.wps
     cp /tmp/files/config.json /wrf/WRF/config.json
+    cp /tmp/files/config.json /wrf/WRF/website/public/json/config.json
     /wrf/WRF/set_cron_from_config.sh
     /wrf/WRF/run_interval.sh &
     touch "$LOCKFILE"
