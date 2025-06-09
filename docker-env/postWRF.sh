@@ -36,7 +36,7 @@ cat > public/json/datasetinfo.json <<EOF
 {
     "dataprediction": "$PREDICTION_DATE",
     "runtime": "$RUNTIME_DATE",
-    "endhour","$END_HOUR"
+    "endhour":"$END_HOUR"
 }
 EOF
 
