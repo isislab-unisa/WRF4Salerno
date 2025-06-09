@@ -1,120 +1,43 @@
-#!/bin/bash
+cd /wrf/WRF/website/ || { echo "Directory website non trovata"; exit 1; }
 
-cd /wrf/WRF || { echo "Errore: impossibile accedere alla directory WRF."; exit 1; }
+mkdir -p public
+mkdir -p public/Image
+mkdir -p public/json
+mkdir -p public/files
 
-
-echo "Esecuzione di cleaner.sh..."
-./cleaner.sh
+# Esegui il post-processing
+echo "Esecuzione del post-processing..."
+python3 ../wrftoGrib2.py
 if [ $? -ne 0 ]; then
-    echo "Errore durante l'esecuzione di cleaner.sh. Interruzione."
+    echo "Errore durante l'esecuzione di wrftoGrib2.py."
     exit 1
 fi
 
-# Verifica la presenza dei dati WPS_GEOG
-WPS_GEOG_DIR="WPS_GEOG"
-if [ ! -d "$WPS_GEOG_DIR" ] || [ -z "$(ls -A $WPS_GEOG_DIR)" ]; then
-    echo "Dati WPS_GEOG non trovati o directory vuota. Scaricamento in corso..."
-    # Comando per scaricare i dati WPS_GEOG (modifica con il comando corretto)
-    ./download_WPS_GEOG.sh
-    if [ $? -ne 0 ]; then
-        echo "Errore durante il download dei dati WPS_GEOG. Interruzione."
-        exit 1
-    fi
-else
-    echo "Dati WPS_GEOG trovati. Procedo con l'esecuzione."
-fi
-
-# Esegui install_GFS.sh per scaricare i dati GFS
-echo "Esecuzione di install_GFS.sh..."
-./install_GFS.sh
+python3 ../wrftoImage.py
 if [ $? -ne 0 ]; then
-    echo "Errore durante l'esecuzione di install_GFS.sh. Interruzione."
+    echo "Errore durante l'esecuzione di wrftoImage.py."
     exit 1
 fi
 
-# Esegui setup_namelist.sh per configurare i file namelist
-echo "Esecuzione di setup_namelist.sh..."
-./setup_namelist.sh
+python3 ../WRFtoMapData.py
 if [ $? -ne 0 ]; then
-    echo "Errore durante l'esecuzione di setup_namelist.sh. Interruzione."
+    echo "Errore durante l'esecuzione di WRFtoMapData.py."
     exit 1
 fi
 
-# Passa alla directory WPS
-echo "Passaggio alla directory WPS..."
-cd WPS/ || { echo "Errore: impossibile accedere alla directory WPS."; exit 1; }
+echo "Esecuzione completata con successo."
 
-# Esegui geogrid.exe
-echo "Esecuzione di geogrid.exe..."
-./geogrid.exe > log.geogrid 2>&1
-if [ $? -ne 0 ]; then
-    echo "Errore durante l'esecuzione di geogrid.exe. Controlla log.geogrid per i dettagli."
-    exit 1
-fi
+# Aggiorna datasetinfo.json con la data della predizione e il giorno di lancio
+PREDICTION_DATE=$(date +"%Y%m%d")
+RUNTIME_DATE=$(date -d "yesterday" +"%Y%m%d")
+END_HOUR=$(date -d "yesterday" +"%H:%M")
 
-# Collega i file GFS
-echo "Collegamento dei file GFS..."
-./link_grib.csh ../DATA/
-if [ $? -ne 0 ]; then
-    echo "Errore durante il collegamento dei file GFS."
-    exit 1
-fi
+cat > public/json/datasetinfo.json <<EOF
+{
+    "dataprediction": "$PREDICTION_DATE",
+    "runtime": "$RUNTIME_DATE",
+    "endhour","$END_HOUR"
+}
+EOF
 
-# Collega il Vtable
-echo "Collegamento del Vtable..."
-ln -sf ungrib/Variable_Tables/Vtable.GFS Vtable
-if [ $? -ne 0 ]; then
-    echo "Errore durante il collegamento del Vtable."
-    exit 1
-fi
-
-# Esegui ungrib.exe
-echo "Esecuzione di ungrib.exe..."
-./ungrib.exe > log.ungrib 2>&1
-if [ $? -ne 0 ]; then
-    echo "Errore durante l'esecuzione di ungrib.exe."
-    exit 1
-fi
-
-# Esegui metgrid.exe
-echo "Esecuzione di metgrid.exe..."
-./metgrid.exe > log.metgrid 2>&1
-if [ $? -ne 0 ]; then
-    echo "Errore durante l'esecuzione di metgrid.exe. Controlla log.metgrid per i dettagli."
-    exit 1
-fi
-
-# Passa alla directory WRF/run
-echo "Passaggio alla directory WRF/run..."
-cd ../WRF/run || { echo "Errore: impossibile accedere alla directory WRF/run."; exit 1; }
-
-# Collega i file met_em*
-echo "Collegamento dei file met_em*..."
-ln -sf ../../WPS/met_em* .
-if [ $? -ne 0 ]; then
-    echo "Errore durante il collegamento dei file met_em*."
-    exit 1
-fi
-
-# Esegui real.exe
-echo "Esecuzione di real.exe..."
-./real.exe
-if [ $? -ne 0 ]; then
-    echo "Errore durante l'esecuzione di real.exe."
-    exit 1
-fi
-
-# Esegui wrf.exe
-echo "Esecuzione di wrf.exe..."
-./wrf.exe
-if [ $? -ne 0 ]; then
-    echo "Errore durante l'esecuzione di wrf.exe."
-    exit 1
-fi
-
-ncrcat wrfout* ../../../website/wrfoutput.nc
-if [ $? -ne 0 ]; then
-    echo "Errore durante l'unione dei file wrfout* con ncrcat."
-    exit 1
-fi
-echo "Esecuzione completata con successo. File di output salvato in website/wrfoutput.nc."
+echo "Aggiornato datasetinfo.json con dataprediction=$PREDICTION_DATE, runtime=$RUNTIME_DATE e endhour=$END_HOUR."

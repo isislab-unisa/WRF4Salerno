@@ -46,7 +46,7 @@ cd WPS/ || { echo "Errore: impossibile accedere alla directory WPS."; exit 1; }
 
 # Esegui geogrid.exe
 echo "Esecuzione di geogrid.exe..."
-./geogrid.exe
+./geogrid.exe > log.geogrid 2>&1
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di geogrid.exe. Controlla log.geogrid per i dettagli."
     exit 1
@@ -70,7 +70,7 @@ fi
 
 # Esegui ungrib.exe
 echo "Esecuzione di ungrib.exe..."
-./ungrib.exe
+./ungrib.exe > log.ungrib 2>&1
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di ungrib.exe."
     exit 1
@@ -78,7 +78,7 @@ fi
 
 # Esegui metgrid.exe
 echo "Esecuzione di metgrid.exe..."
-./metgrid.exe
+./metgrid.exe > log.metgrid 2>&1
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di metgrid.exe. Controlla log.metgrid per i dettagli."
     exit 1
@@ -96,15 +96,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Leggi il numero di core da config.json
-NCORES=$(jq -r '.n_cores' ../../config.json)
-if [ -z "$NCORES" ] || [ "$NCORES" = "null" ]; then
-    NCORES=1
-fi
-
 # Esegui real.exe
 echo "Esecuzione di real.exe..."
-mpirun -np $NCORES ./real.exe
+./real.exe
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di real.exe."
     exit 1
@@ -112,7 +106,7 @@ fi
 
 # Esegui wrf.exe
 echo "Esecuzione di wrf.exe..."
-mpirun -np $NCORES ./wrf.exe
+./wrf.exe
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di wrf.exe."
     exit 1
