@@ -96,9 +96,15 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Leggi il numero di core da config.json
+NCORES=$(jq -r '.n_cores' ../../config.json)
+if [ -z "$NCORES" ] || [ "$NCORES" = "null" ]; then
+    NCORES=1
+fi
+
 # Esegui real.exe
 echo "Esecuzione di real.exe..."
-./real.exe
+mpirun -np $NCORES ./real.exe
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di real.exe."
     exit 1
@@ -106,7 +112,7 @@ fi
 
 # Esegui wrf.exe
 echo "Esecuzione di wrf.exe..."
-./wrf.exe
+mpirun -np $NCORES ./wrf.exe
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di wrf.exe."
     exit 1
