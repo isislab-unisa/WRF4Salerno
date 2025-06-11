@@ -104,7 +104,7 @@ fi
 
 # Esegui real.exe
 echo "Esecuzione di real.exe..."
-mpirun -np $NCORES ./real.exe
+./real.exe
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di real.exe."
     exit 1
