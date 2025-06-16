@@ -46,7 +46,7 @@ cd WPS/ || { echo "Errore: impossibile accedere alla directory WPS."; exit 1; }
 
 # Esegui geogrid.exe
 echo "Esecuzione di geogrid.exe..."
-./geogrid.exe > log.geogrid 2>&1
+./geogrid.exe
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di geogrid.exe. Controlla log.geogrid per i dettagli."
     exit 1
@@ -70,7 +70,7 @@ fi
 
 # Esegui ungrib.exe
 echo "Esecuzione di ungrib.exe..."
-./ungrib.exe > log.ungrib 2>&1
+./ungrib.exe
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di ungrib.exe."
     exit 1
@@ -78,7 +78,7 @@ fi
 
 # Esegui metgrid.exe
 echo "Esecuzione di metgrid.exe..."
-./metgrid.exe > log.metgrid 2>&1
+./metgrid.exe
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di metgrid.exe. Controlla log.metgrid per i dettagli."
     exit 1
