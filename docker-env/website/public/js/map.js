@@ -11,7 +11,7 @@ const map = L.map("map", {
   // touchZoom: false        // Disattiva lo zoom su mobile
   // minZoom: 8.5,
   // maxZoom: 14,
-}).setView([43,19], 9); // Adjust initial view
+}).setView([43,19],11); // Adjust initial view
 
 // Add a tile layer to the map
 L.tileLayer(
@@ -162,7 +162,7 @@ function loadInfo() {
     // Format dataprediction (YYYYMMDD → DD/MM/YYYY)
     const formattedDate = `${validDate.slice(6, 8)}/${validDate.slice(4, 6)}/${validDate.slice(0, 4)}`;
     // Format runtime (YYYYMMDD or YYYYMMDDHH → DD/MM/YYYY [HH:00])
-    let formattedRuntime = "Data non valida";
+    let formattedRuntime = "-";
     if (typeof validRuntime === "string" && validRuntime.length >= 8) {
       const day = validRuntime.slice(6, 8);
       const month = validRuntime.slice(4, 6);
@@ -175,9 +175,10 @@ function loadInfo() {
       }
     }
 
-
-    // Testo su due righe
-    const infoText = `Previsioni del - ${formattedDate}<br>Predizione eseguita - ${formattedRuntime}<br>Orario di termine - ${endhour}`;
+    // Testo minimale e chiaro
+    const infoText = `<span class='info-label'>Previsioni:</span> <span class='info-value'>${formattedDate}</span><br>` +
+      `<span class='info-label'>Eseguito:</span> <span class='info-value'>${formattedRuntime}</span><br>` +
+      `<span class='info-label'>Fine:</span> <span class='info-value'>${endhour || '-'} </span>`;
     dateInput.innerHTML = infoText;
     dateInput.value = infoText;
   }).fail(function () {
@@ -227,7 +228,7 @@ function loadRain( time, bounds,data) {
 
   // Aggiungi l'immagine come layer principale
   // L.imageOverlay(imageUrl, imageBounds).addTo(map);
-  addImageOverlay(imageUrl, bounds); // Aggiungi l'immagine come layer principale
+  addImageOverlay(imageUrl, bounds,{opacity:0.6}); // Aggiungi l'immagine come layer principale
   
   loadWidgetInfo("rain", data); // Aggiungi i marker per la pioggia
 
@@ -240,11 +241,16 @@ document.querySelector("#timeSlider").addEventListener("change", (e) => {
 function setTime(value) {
   const hour = Number(value) % 24;
   document.getElementById("selectedTime").textContent =
-    "Orario Selezionato: " + hour.toString().padStart(2, "0") + ":00";
+    "" + hour.toString().padStart(2, "0") + ":00";
 }
 
 // Esempio: runtime = "2024060512" (YYYYMMDDHH), hour_prediction = 48
+let lastTimelineRuntime = null;
+let lastTimelineHourPrediction = null;
+
 function generateTimeline(runtime, hour_prediction) {
+  lastTimelineRuntime = runtime;
+  lastTimelineHourPrediction = hour_prediction;
   const ticksContainer = document.querySelector('.timeline-ticks');
   ticksContainer.innerHTML = ""; // Svuota i tick
 
@@ -254,14 +260,17 @@ function generateTimeline(runtime, hour_prediction) {
   const day = parseInt(runtime.slice(6, 8));
   const hour = runtime.length >= 10 ? parseInt(runtime.slice(8, 10)) : 0;
 
-  // Genera tick per ogni ora
+  // Scegli la frequenza dei tick in base alla larghezza dello schermo
+  const isMobile = window.innerWidth <= 600;
+  const tickStep = isMobile ? 24 : 6; // Su mobile mostra solo ogni 24 ore
+
   for (let i = 0; i < hour_prediction; i++) {
     const date = new Date(year, month, day, hour + i);
-    // Mostra solo alcune label (es: ogni 6 ore) per non affollare
-    if (i % 6 === 0 || i === 0 || i === hour_prediction - 1) {
-      const label = date.toLocaleString('it-IT', {
-        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-      }).replace(':00', ''); // "05/06, 12"
+    if (i % tickStep === 0 || i === 0 || i === hour_prediction - 1) {
+      const dayShort = date.toLocaleString('it-IT', { weekday: 'short' });
+      const dayNum = date.getDate().toString().padStart(2, '0');
+      const hourStr = date.getHours().toString().padStart(2, '0');
+      const label = `${dayShort} ${dayNum} - ${hourStr}:00`;
       const span = document.createElement('span');
       span.textContent = label;
       ticksContainer.appendChild(span);
@@ -276,15 +285,22 @@ function generateTimeline(runtime, hour_prediction) {
   const slider = document.getElementById('timeSlider');
   slider.max = hour_prediction - 1;
 
-  slider.addEventListener('input', function() {
-  const idx = parseInt(slider.value);
-  const date = new Date(year, month, day, hour + idx);
-  document.getElementById('selectedTime').textContent =
-    "Orario selezionato: " + date.toLocaleString('it-IT', {
-      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-    }).replace(':00', '');
-});
+  // slider.addEventListener('input', function() {
+  //   const idx = parseInt(slider.value);
+  //   const date = new Date(year, month, day, hour + idx);
+  //   const dayShort = date.toLocaleString('it-IT', { weekday: 'short' });
+  //   const dayNum = date.getDate().toString().padStart(2, '0');
+  //   const hourStr = date.getHours().toString().padStart(2, '0');
+  //   document.getElementById('selectedTime').textContent =
+  //     `Orario selezionato: ${dayShort} ${dayNum} - ${hourStr}:00`;
+  // });
 }
+
+window.addEventListener('resize', function() {
+  if (lastTimelineRuntime && lastTimelineHourPrediction) {
+    generateTimeline(lastTimelineRuntime, lastTimelineHourPrediction);
+  }
+});
 
 $.getJSON("json/config.json", function (config) {
         const area=config["area"];
@@ -292,18 +308,17 @@ $.getJSON("json/config.json", function (config) {
         const resolution=config["resolution"];
         const resolution_scale=config["resolution_scale"];
         const initial_bounds=config["initial_bounds"];
+        const initial_zoom = config["initial_zoom"] || 8;
         document.querySelector(
             ".logo"
           ).textContent = `MeteoSuMisura:${area}`;
         
         document.querySelector(
           ".dataset-info"
-        ).innerHTML = `
-        - Area: ${area} <br>
-        - Previsioni di ${hour_prediction} ore<br> 
-        - Risoluzione: ${resolution} ${resolution_scale} `;
-        ;
-        map.setView(initial_bounds,8)
+        ).innerHTML = `<span class='info-label'>Area:</span> <span class='info-value'>${area}</span><br>`+
+          `<span class='info-label'>Durata:</span> <span class='info-value'>${hour_prediction}h</span><br>`+
+          `<span class='info-label'>Risoluzione:</span> <span class='info-value'>${resolution} ${resolution_scale}</span>`;
+        map.setView(initial_bounds, initial_zoom)
 
         document.querySelector("#timeSlider").max = hour_prediction-1;
         
@@ -314,6 +329,8 @@ $.getJSON("json/config.json", function (config) {
           generateTimeline(validDate, config.hour_prediction);
         })
 
+        document.title = `MeteoSuMisura ${area}`;
+
       }).fail(function () {
 
       });
@@ -321,6 +338,51 @@ $.getJSON("json/config.json", function (config) {
 setTime(document.querySelector("#timeSlider").value);
 loadInfo();
 loadForecast();
+
+// --- Precaricamento immagini forecast ---
+const preloadedImages = {};
+function preloadForecastImages(type, maxTime) {
+  for (let t = 0; t <= maxTime; t++) {
+    let url = '';
+    if (type === 'temperature') url = `Image/minimal_temperature_plot_${t}.png`;
+    else if (type === 'wind') url = `Image/minimal_wind_plot_${t}.png`;
+    else if (type === 'rain') url = `Image/minimal_rain_plot_${t}.png`;
+    const img = new Image();
+    img.src = url;
+    preloadedImages[`${type}_${t}`] = img;
+  }
+}
+
+// --- Debounce utility ---
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+// Modifica l'evento dello slider per usare debounce
+const slider = document.getElementById('timeSlider');
+slider.removeEventListener('input', setTime); // Rimuovi eventuale vecchio handler
+slider.addEventListener('input', debounce(function(e) {
+  setTime(e.target.value);
+  loadForecast();
+}, 120)); // 120ms debounce
+
+// Precarica le immagini all'avvio (puoi anche farlo dopo aver letto config)
+$.getJSON("json/config.json", function (config) {
+  // ...existing code...
+  preloadForecastImages('temperature', config.hour_prediction-1);
+  preloadForecastImages('wind', config.hour_prediction-1);
+  preloadForecastImages('rain', config.hour_prediction-1);
+  // ...existing code...
+});
+
+// Applica una transizione CSS all'opacità delle immagini overlay
+const style = document.createElement('style');
+style.innerHTML = `.leaflet-image-layer { transition: opacity 0.3s; }`;
+document.head.appendChild(style);
 
 $(document).ready(function () {
   // Timeline play/stop logic
@@ -363,4 +425,18 @@ $(document).ready(function () {
     }
   });
 
+  // Gestione visibilità info-panel
+  const $infoPanel = $('.info-panel');
+  $infoPanel.hide();
+  $('#toggleInfoPanel').on('click', function(e) {
+    e.preventDefault();
+    $infoPanel.toggle();
+  });
+
+});
+
+// Gestione selezione forecast type minimale
+$(document).on('change', 'input[name="forecastType"]', function() {
+  $('.icon-label').removeClass('active');
+  $(this).next('.icon-label').addClass('active');
 });

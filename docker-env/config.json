@@ -6,5 +6,6 @@
   "resolution": 1,
   "resolution_scale":"km",
   "initial_bounds":[40.29,14.90],
+  "initial_zoom": 10,
   "n_cores": 4
 }
