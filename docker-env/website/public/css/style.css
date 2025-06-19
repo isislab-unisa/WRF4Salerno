@@ -58,7 +58,7 @@ html, body {
 .info-box {
   position: fixed;
   bottom: 5rem;
-  right: 24px;
+  left: 24px;
   background: rgba(255,255,255,0.85) !important;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
@@ -88,6 +88,7 @@ html, body {
   min-width: 120px;
   max-width: 220px;
   color: #222;
+  border: none !important;
 }
 
 .forecast-type-panel-minimal {
@@ -105,7 +106,7 @@ html, body {
   min-width: 60px;
   max-width: 80px;
   color: #222;
-  border: 1.5px solid #0d6efd;
+  border: none !important;
   align-items: center;
 }
 
@@ -162,7 +163,7 @@ input[type="radio"]:checked + .icon-label {
   z-index: 20;
   color: #222;
   border-radius: 18px;
-  border: 1.5px solid #0d6efd;
+  border: none !important;
   gap: 18px;
 }
 
@@ -313,18 +314,9 @@ input[type="radio"]:checked + .icon-label {
     border-radius: 16px !important;
     padding: 10px 12px !important;
   }
-  .info-box {
-    right: 50% !important;
-    left: 50% !important;
-    transform: translateX(50%) !important;
-    min-width: 90vw !important;
-    max-width: 98vw !important;
-    border-radius: 16px !important;
-    padding: 10px 12px !important;
-  }
   .modal-content {
     border-radius: 16px;
-    background: rgba(255,255,255,0.95);
+    background: rgba(214, 139, 139, 0.95);
   }
   .modal-header {
     border-bottom: none;
@@ -369,6 +361,13 @@ input[type="radio"]:checked + .icon-label {
     font-size: 0.95em;
     padding: 0.3em 0.7em;
   }
+  .info-box {
+    font-size: 0.75em;
+    min-width: 110px;
+    max-width: 160px;
+    padding: 7px 8px;
+    bottom: 6rem;
+  }
 }
 
 /* Responsive timeline ticks */
@@ -407,7 +406,7 @@ input[type="radio"]:checked + .icon-label {
 }
 
 .navbar .rounded-pill {
-  background: rgba(13,110,253,0.55) !important;
+  /* background: rgba(13,110,253,0.55) !important; */
   box-shadow: 0 1px 4px rgba(0,0,0,0.07);
   pointer-events: auto;
   display: flex;
@@ -450,5 +449,156 @@ input[type="radio"]:checked + .icon-label {
   }
   .info-label, .info-value {
     font-size: 0.82em;
+  }
+}
+
+/* Navbar logo pill personalizzata */
+.navbar-logo-pill {
+  background: rgba(255,255,255,0.85) !important;
+  border-radius: 2em !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+  padding: 18px 24px 10px 24px !important;
+  min-width: 90px;
+  max-width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: none !important;
+}
+
+.navbar-logo-pill img {
+  height: 2.7em;
+  max-width: 90px;
+  object-fit: contain;
+  display: block;
+}
+
+.logo-area {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: #0d6efd !important;
+  margin-top: 0.3em;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .navbar-logo-pill {
+    padding: 10px 10px 6px 10px !important;
+    max-width: 110px;
+  }
+  .navbar-logo-pill img {
+    height: 2em;
+    max-width: 60px;
+  }
+  .logo-area {
+    font-size: 0.98em;
+  }
+}
+
+/* Navbar pill bianca trasparente per entrambe le pill */
+.navbar-logo-pill,
+.navbar .bg-primary.bg-opacity-75.rounded-pill {
+  background: rgba(255,255,255,0.85) !important;
+  color: #0d6efd !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+}
+
+.navbar .bg-primary.bg-opacity-75.rounded-pill .navbar-brand,
+.navbar .bg-primary.bg-opacity-75.rounded-pill .nav-link {
+  color: #0d6efd !important;
+}
+
+/* Scala di intensità dinamica a sinistra */
+.legend-scale {
+  position: fixed !important;
+  right: 24px;
+  bottom: 90px;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  z-index: 50;
+  background: rgba(255,255,255,0.92);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+  padding: 14px 18px 10px 18px;
+  min-width: 90px;
+  max-width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.98em;
+  color: #1a202c;
+  border: 1.5px solid #0d6efd22;
+  gap: 6px;
+}
+
+.legend-scale-title {
+  font-weight: 700;
+  font-size: 1em;
+  color: #0d6efd;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.legend-scale-bar {
+  width: 60px;
+  height: 12px;
+  border-radius: 6px;
+  margin: 4px 0;
+  background: linear-gradient(90deg, #e0eafc 0%, #0d6efd 100%);
+}
+
+.legend-scale-bar.viridis {
+  background: linear-gradient(90deg, #440154 0%, #31688e 25%, #35b779 50%, #fde725 100%) !important;
+}
+
+.legend-scale-labels {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.92em;
+  color: #222;
+}
+
+@media (max-width: 700px) {
+  .legend-scale {
+    right: 8px;
+    bottom: 70px;
+    min-width: 60px;
+    max-width: 90px;
+    padding: 8px 8px 6px 8px;
+    font-size: 0.92em;
+  }
+  .legend-scale-bar {
+    width: 38px;
+    height: 10px;
+  }
+}
+
+/* Box grafico sopra la mappa, posizione assoluta in basso a sinistra */
+.chart-container {
+  position: fixed;
+  left: 24px;
+  bottom: 90px;
+  z-index: 100;
+  background: rgba(255,255,255,0.85);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+  padding: 18px 18px 10px 18px;
+  max-width: 440px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 700px) {
+  .chart-container {
+    left: 8px;
+    bottom: 70px;
+    padding: 8px 4px 6px 4px;
+    max-width: 98vw;
   }
 }

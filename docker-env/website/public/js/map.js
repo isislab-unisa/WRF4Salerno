@@ -1,3 +1,17 @@
+// Variabili globali per i dati di configurazione e dataset
+let area = null;
+let hour_prediction = null;
+let resolution = null;
+let resolution_scale = null;
+let initial_bounds = null;
+let initial_zoom = null;
+let validDate = null;
+let validRuntime = null;
+let endhour = null;
+
+// Variabile globale per l'ultimo punto selezionato con doppio click
+let lastChartPoint = null;
+
 const samplingRate = 5; // Cambia questo valore per regolare il sampling (es. ogni 5 elementi)
 
 // LOADING MAP
@@ -39,7 +53,7 @@ function addImageOverlay(url, bounds, options) {
   img.onerror = function () {
     // Se l'immagine non esiste, mostra un overlay con un messaggio
     const errorUrl =
-      "data:image/svg+xml;charset=UTF-8," +
+      "data:image/svg+xml;charset=UTF-8," 
       encodeURIComponent(
         `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="60">
           <rect width="100%" height="100%" fill="transparent"/>
@@ -52,6 +66,9 @@ function addImageOverlay(url, bounds, options) {
   };
   img.src = url;
 }
+
+
+
 
 function loadForecastHelper(data) {
   // Rimuovi tutte le immagini precedenti
@@ -92,9 +109,9 @@ function loadForecastHelper(data) {
   // map.setMaxBounds(bounds);
 
   // Calcola il centro dei bounds
-  const centerLat = (minLat + maxLat) / 2;
-  const centerLng = (minLng + maxLng) / 2;
-  map.setView([centerLat, centerLng]);
+  // const centerLat = (minLat + maxLat) / 2;
+  // const centerLng = (minLng + maxLng) / 2;
+  // map.setView([centerLat, centerLng]);
 
   // Impedisci lo scorrimento oltre i limiti
   // map.on("drag", function () {
@@ -106,6 +123,17 @@ function loadForecast() {
   const time = document.getElementById("timeSlider").value;
   $.getJSON("json/output_"+time+".geojson", function (data) {
     loadForecastHelper(data);
+    // Se il chart è attivo, aggiorna il grafico e la UI
+    const chartContainer = document.querySelector('.chart-container');
+    const toggleChartBtn = document.getElementById('toggleChartBtn');
+    if ((chartContainer && chartContainer.style.display !== 'none') || (toggleChartBtn && toggleChartBtn.classList.contains('active'))) {
+      activateChartView();
+      if (lastChartPoint) {
+        loadChartData(lastChartPoint.lat, lastChartPoint.lng);
+      } else {
+        loadChartData(initial_bounds[0], initial_bounds[1]);
+      }
+    }
   }).fail(function () {
     console.error("Errore nel caricamento dei dati JSON");
   });
@@ -126,23 +154,23 @@ function loadWidgetInfo(typeofData, data) {
 
       if (typeofData === "temperature") {
         const data = matchingFeature.properties.temperature;
-        const info = `Lat: ${lat}, Long: ${lng}, Temperatura: ${data.toFixed(
+        const info = `Lat: ${lat}, Lng: ${lng}, T: ${data.toFixed(
           2
         )} °C`;
         document.getElementById("data").textContent = info;
       } else if (typeofData === "wind") {
-        const data = Math.sqrt(
-          matchingFeature.properties.u_values ** 2 +
-            matchingFeature.properties.v_values ** 2
-        );
+        const u = matchingFeature.properties.u_values;
+        const v = matchingFeature.properties.v_values;
+        const data = Math.sqrt(u ** 2 + v ** 2);
+        const direction = (Math.atan2(u, v) * 180 / Math.PI + 360) % 360; // direzione in gradi
         const knots = data * 1.94384; // 1 m/s = 1.94384 knot
-        const info = `Lat: ${lat}, Long: ${lng}, Velocità: ${knots.toFixed(2)} kt`;
+        const info = `Lat: ${lat}, Lng: ${lng}, spd: ${data.toFixed(2)} m/s (${knots.toFixed(2)} kt), dir: ${direction.toFixed(0)}°`;
         document.getElementById("data").textContent = info;
       } else if (typeofData === "rain") {
         // Mostra info pioggia (rain: istantanea, rain_accum: accumulo totale)
         const rain = matchingFeature.properties.rain;
         const rainAccum = matchingFeature.properties.rain_accum;
-        const info = `Lat: ${lat}, Long: ${lng}, Pioggia: ${rain.toFixed(2)} mm, Accumulo: ${rainAccum.toFixed(2)} mm`;
+        const info = `Lat: ${lat}, Lng: ${lng}, rain: ${rain.toFixed(2)} mm, acc: ${rainAccum.toFixed(2)} mm`;
         document.getElementById("data").textContent = info;
         document.getElementById("data").style.visibility = "visible";
       }
@@ -155,9 +183,9 @@ function loadWidgetInfo(typeofData, data) {
 function loadInfo() {
   const dateInput = document.getElementById("update-time");
   $.getJSON("json/datasetinfo.json", function (data) {
-    const validDate = data["dataprediction"];
-    const validRuntime = data["runtime"];
-    const endhour = data["endhour"];
+    validDate = data["dataprediction"];
+    validRuntime = data["runtime"];
+    endhour = data["endhour"];
 
     // Format dataprediction (YYYYMMDD → DD/MM/YYYY)
     const formattedDate = `${validDate.slice(6, 8)}/${validDate.slice(4, 6)}/${validDate.slice(0, 4)}`;
@@ -238,80 +266,240 @@ document.querySelector("#timeSlider").addEventListener("change", (e) => {
   setTime(e.target.value);
 });
 
-function setTime(value) {
-  const hour = Number(value) % 24;
-  document.getElementById("selectedTime").textContent =
-    "" + hour.toString().padStart(2, "0") + ":00";
-}
-
 // Esempio: runtime = "2024060512" (YYYYMMDDHH), hour_prediction = 48
 let lastTimelineRuntime = null;
 let lastTimelineHourPrediction = null;
 
-function generateTimeline(runtime, hour_prediction) {
-  lastTimelineRuntime = runtime;
-  lastTimelineHourPrediction = hour_prediction;
-  const ticksContainer = document.querySelector('.timeline-ticks');
-  ticksContainer.innerHTML = ""; // Svuota i tick
 
-  // Parsing della data di partenza
-  const year = parseInt(runtime.slice(0, 4));
-  const month = parseInt(runtime.slice(4, 6)) - 1; // JS: 0-based
-  const day = parseInt(runtime.slice(6, 8));
-  const hour = runtime.length >= 10 ? parseInt(runtime.slice(8, 10)) : 0;
-
-  // Scegli la frequenza dei tick in base alla larghezza dello schermo
-  const isMobile = window.innerWidth <= 600;
-  const tickStep = isMobile ? 24 : 6; // Su mobile mostra solo ogni 24 ore
-
-  for (let i = 0; i < hour_prediction; i++) {
-    const date = new Date(year, month, day, hour + i);
-    if (i % tickStep === 0 || i === 0 || i === hour_prediction - 1) {
-      const dayShort = date.toLocaleString('it-IT', { weekday: 'short' });
-      const dayNum = date.getDate().toString().padStart(2, '0');
-      const hourStr = date.getHours().toString().padStart(2, '0');
-      const label = `${dayShort} ${dayNum} - ${hourStr}:00`;
-      const span = document.createElement('span');
-      span.textContent = label;
-      ticksContainer.appendChild(span);
-    } else {
-      const span = document.createElement('span');
-      span.textContent = '';
-      ticksContainer.appendChild(span);
+function setTime(value, runtime = null, hour_prediction = null) {
+  // Aggiorna le variabili globali se passate
+  if (runtime) lastTimelineRuntime = runtime;
+  if (hour_prediction) lastTimelineHourPrediction = hour_prediction;
+  if (lastTimelineRuntime) {
+    const year = parseInt(lastTimelineRuntime.slice(0, 4));
+    const month = parseInt(lastTimelineRuntime.slice(4, 6)) - 1;
+    const day = parseInt(lastTimelineRuntime.slice(6, 8));
+    const startHour = lastTimelineRuntime.length >= 10 ? parseInt(lastTimelineRuntime.slice(8, 10)) : 0;
+    // Calcola la data/ora effettiva sommando value ore all'inizio
+    const date = new Date(year, month, day, startHour + Number(value));
+    const dayShort = date.toLocaleString('it-IT', { weekday: 'short' });
+    const dayNum = date.getDate().toString().padStart(2, '0');
+    const hourStr = date.getHours().toString().padStart(2, '0');
+    document.getElementById("selectedTime").textContent = `${dayShort} ${dayNum} - ${hourStr}:00`;
+  
+    // Attiva solo quando si cambia giorno rispetto al precedente
+    if (typeof setTime.prevDayNum === 'undefined') setTime.prevDayNum = null;
+    if (setTime.prevDayNum !== dayNum) {
+      // (Rimosso: non disattivare più il chart quando si cambia giorno)
+      // loadChartData( initial_bounds[0],initial_bounds[1]);
     }
+    setTime.prevDayNum = dayNum;
+  } else {
+    // Fallback se non è ancora nota la data di partenza
+    const hour = Number(value) % 24;
+    document.getElementById("selectedTime").textContent = hour.toString().padStart(2, "0") + ":00";
   }
-
-  // Aggiorna lo slider
-  const slider = document.getElementById('timeSlider');
-  slider.max = hour_prediction - 1;
-
-  // slider.addEventListener('input', function() {
-  //   const idx = parseInt(slider.value);
-  //   const date = new Date(year, month, day, hour + idx);
-  //   const dayShort = date.toLocaleString('it-IT', { weekday: 'short' });
-  //   const dayNum = date.getDate().toString().padStart(2, '0');
-  //   const hourStr = date.getHours().toString().padStart(2, '0');
-  //   document.getElementById('selectedTime').textContent =
-  //     `Orario selezionato: ${dayShort} ${dayNum} - ${hourStr}:00`;
-  // });
 }
 
-window.addEventListener('resize', function() {
-  if (lastTimelineRuntime && lastTimelineHourPrediction) {
-    generateTimeline(lastTimelineRuntime, lastTimelineHourPrediction);
+
+let dataForchart = null; // Variabile globale per i dati del grafico
+
+// let lastTimelineRuntime = null;
+// let lastTimelineHourPrediction = null;
+function loadChartData( latitude,longitude) {
+  // Mostra lo spinner di loading
+  const spinner = document.getElementById('chartLoadingSpinner');
+  if (spinner) spinner.style.display = '';
+  // Rimuovi il vecchio chart all'inizio
+  if (window.chartInstance) {
+    window.chartInstance.destroy();
+    window.chartInstance = null;
   }
-});
+  const toggleChartBtn = document.getElementById('toggleChartBtn');
+  if (toggleChartBtn) toggleChartBtn.disabled = true;
+  const sliderValue = Number(document.querySelector("#timeSlider").value);
+  const day = Math.floor(sliderValue / 24);
+  // Calcola il numero di ore effettive per il giorno selezionato
+  let startHour = 24 * day;
+  let endHour = Math.min(startHour + 23, hour_prediction - 1);
+  let numHours = endHour - startHour + 1;
+  // Usa la variabile globale validDate (formato YYYYMMDD)
+  const year = parseInt(validDate.slice(0, 4));
+  const month = parseInt(validDate.slice(4, 6)) - 1;
+  const dayNum = validDate.slice(6, 8);
+  const dateObj = new Date(year, month, dayNum);
+  const dayShort = dateObj.toLocaleString('it-IT', { weekday: 'short' });
+  let requests = [];
+  let dataForchart = {title:`${dayShort} ${dayNum}` ,features:[]};
+  let dataByLatLon = {};
+  // Ottieni il forecastType selezionato
+  const forecastType = document.querySelector('input[name="forecastType"]:checked').value;
+  for (let i = startHour; i <= endHour; i++) {
+    requests.push(
+      $.getJSON(`json/output_${i}.geojson`, function (geojson) {
+        geojson.features.filter(f => {
+          const lat = f.properties.latitude;
+          const lon = f.properties.longitude;
+          if(lat === latitude && lon === longitude) {
+            const key = `${lat},${lon}`;
+            if (!dataByLatLon[key]) {
+              dataByLatLon[key] = new Array(numHours).fill(null);
+            }
+            const hourIdx = i - startHour;
+            dataByLatLon[key][hourIdx] = {
+              ...f.properties,
+              time: i
+            };
+          }
+        });
+      })
+    );
+  }
+  $.when.apply($, requests).always(function () {
+    dataForchart.features = dataByLatLon;
+    if (toggleChartBtn) toggleChartBtn.disabled = false;
+    // Nascondi lo spinner di loading
+    if (spinner) spinner.style.display = 'none';
+    // console.log("Dati per il grafico caricati:", dataForchart);
+    loadChartInfo(latitude, longitude, dataForchart, forecastType, numHours); // Passa anche numHours
+    dataForchart= null; // Resetta la variabile globale per evitare conflitti futuri
+  });
+}
+
+function loadChartInfo(latitude,longitude,dataForchart,forecastType,numHours){
+  // Trova la feature corrispondente alla latitudine e longitudine
+
+  if (!dataForchart || !dataForchart.features) {
+    console.warn("Dati per il grafico non disponibili");
+    return;
+  }
+
+  // Trova la feature corrispondente alla latitudine e longitudine
+  const key = `${latitude},${longitude}`;
+  const matchingFeature = dataForchart.features[key];
+  
+  if (matchingFeature) {
+    // Se la feature esiste, aggiorna il grafico
+    // console.log("Feature trovata:", matchingFeature);
+    // Qui puoi aggiungere la logica per aggiornare il grafico con i dati della feature
+    const chartData = {
+      labels: Array.from({ length: numHours }, (_, i) => `${i.toString().padStart(2, '0')}:00`),
+      datasets: []
+    };
+    
+    if (forecastType === 'temperature') {
+      let temperature=[]
+      for (let i = 0; i < matchingFeature.length; i++) {
+        temperature[i] = matchingFeature[i].temperature;
+      }
+      // console.log(temperature);
+
+      chartData.datasets.push({
+        label: `Punto Selezionato: ${latitude},${longitude}`,
+        data: temperature,
+        borderColor: 'rgba(255, 99, 132, 1)',
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        fill: true
+      });
+    }
+    else if (forecastType === 'wind') {
+      const windKnots = [];
+      const windDir = [];
+      for (let i = 0; i < matchingFeature.length; i++) {
+        const u = matchingFeature[i].u_values;
+        const v = matchingFeature[i].v_values;
+        const speed = Math.sqrt(u * u + v * v);
+        windKnots[i] = speed * 1.94384; // 1 m/s = 1.94384 nodi
+        windDir[i] = (Math.atan2(u, v) * 180 / Math.PI + 360) % 360; // direzione in gradi
+      }
+      chartData.datasets.push({
+        label: `Punto Selezionato: ${latitude},${longitude}`,
+        data: windKnots,
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        fill: true,
+        yAxisID: 'y',
+      });
+      chartData.datasets.push({
+        label: 'Direzione vento (°)',
+        data: windDir,
+        borderColor: 'rgba(255, 205, 86, 1)',
+        backgroundColor: 'rgba(255, 205, 86, 0.2)',
+        fill: false,
+        yAxisID: 'y1',
+        pointRadius: 2,
+        borderDash: [5,5],
+      });
+    } else if (forecastType === 'rain') {
+      chartData.datasets.push({
+        label: `Punto Selezionato: ${latitude},${longitude}`,
+        data: matchingFeature.map(f => f.rain),
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        fill: true
+      });
+    }
+
+    // Qui puoi aggiungere la logica per disegnare il grafico con chartData
+    const ctx = document.getElementById('infoChart').getContext('2d');
+    window.chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: chartData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Ora del giorno'
+            }
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: forecastType === 'wind' ? 'Vento (kt)' : (forecastType === 'temperature' ? 'Temperatura (°C)' : 'Pioggia (mm)')
+            },
+            beginAtZero: true
+          },
+          y1: forecastType === 'wind' ? {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Direzione (°)'
+            },
+            min: 0,
+            max: 360,
+            grid: {
+              drawOnChartArea: false
+            }
+          } : undefined
+        }
+      }
+    });    
+
+  } else {
+    console.log("Nessuna feature trovata per le coordinate:", latitude, longitude);
+  }
+
+}
+
 
 $.getJSON("json/config.json", function (config) {
-        const area=config["area"];
-        const hour_prediction=config["hour_prediction"];
-        const resolution=config["resolution"];
-        const resolution_scale=config["resolution_scale"];
-        const initial_bounds=config["initial_bounds"];
-        const initial_zoom = config["initial_zoom"] || 8;
-        document.querySelector(
-            ".logo"
-          ).textContent = `MeteoSuMisura:${area}`;
+        area=config["area"];
+        hour_prediction=config["hour_prediction"];
+        resolution=config["resolution"];
+        resolution_scale=config["resolution_scale"];
+        initial_bounds=config["initial_bounds"];
+        initial_zoom = config["initial_zoom"] || 8;
+        
+        // Aggiorna solo lo span dell'area
+        document.querySelector(".logo-area").textContent = area;
         
         document.querySelector(
           ".dataset-info"
@@ -324,10 +512,14 @@ $.getJSON("json/config.json", function (config) {
         
         $.getJSON("json/datasetinfo.json", function (data) {
           const validDate = data["dataprediction"];
-          console.log("Valid date:", validDate);
+          // console.log("Valid date:", validDate);
           // Genera la timeline
-          generateTimeline(validDate, config.hour_prediction);
+          // generateTimeline(validDate, config.hour_prediction);
+          setTime(document.querySelector("#timeSlider").value,validDate, config.hour_prediction);
+          
         })
+
+        updateTimeSliderLabelsOnConfig(); // Aggiorna le etichette del timeSlider
 
         document.title = `MeteoSuMisura ${area}`;
 
@@ -440,3 +632,191 @@ $(document).on('change', 'input[name="forecastType"]', function() {
   $('.icon-label').removeClass('active');
   $(this).next('.icon-label').addClass('active');
 });
+
+// --- Scala di intensità dinamica ---
+function updateLegendScale(type, windMax = 30) {
+  const legend = document.getElementById('legend-scale');
+  if (!legend) return;
+  let title = '';
+  let min = '';
+  let max = '';
+  let bar = '';
+  let barClass = '';
+  if (type === 'temperature') {
+    title = 'Temperatura (°C)';
+    min = 'Min';
+    max = 'Max';
+    bar = 'linear-gradient(90deg, #00c3ff 0%, #ffff1c 50%, #ff0000 100%)';
+    barClass = '';
+  } else if (type === 'wind') {
+    title = 'Vento (m/s)';
+    min = '0';
+    max = windMax.toString();
+    bar = 'linear-gradient(90deg, #440154 0%, #31688e 25%, #35b779 50%, #fde725 100%)'; // viridis
+    barClass = 'viridis';
+  } else if (type === 'rain') {
+    title = 'Pioggia (mm)';
+    min = '0';
+    max = '50+';
+    bar = 'linear-gradient(90deg, #e0f7fa 0%, #00bcd4 50%, #01579b 100%)';
+    barClass = '';
+  } else {
+    legend.innerHTML = '';
+    return;
+  }
+  legend.innerHTML = `
+    <div class="legend-scale-title">${title}</div>
+    <div class="legend-scale-bar ${barClass}" style="background: ${bar};"></div>
+    <div class="legend-scale-labels d-flex justify-content-between w-100">
+      <span>${min}</span>
+      <span>${max}</span>
+    </div>
+  `;
+}
+
+// Aggiorna la scala quando cambia il tipo di previsione
+$(document).on('change', 'input[name="forecastType"]', function() {
+  if(this.value === 'wind') {
+    // Calcolo dinamico del massimo valore del vento (m/s) se disponibile
+    if(window.lastWindMax) {
+      updateLegendScale('wind', window.lastWindMax);
+    } else {
+      updateLegendScale('wind');
+    }
+  } else {
+    updateLegendScale(this.value);
+  }
+});
+// Aggiorna la scala all'avvio
+const initialType = document.querySelector('input[name="forecastType"]:checked').value;
+if(initialType === 'wind' && window.lastWindMax) {
+  updateLegendScale('wind', window.lastWindMax);
+} else {
+  updateLegendScale(initialType);
+}
+
+// Calcolo dinamico del massimo valore del vento (m/s) quando si carica un nuovo dataset
+function setWindLegendMaxFromData(data) {
+  if (!data || !data.features) return;
+  let maxWind = 0;
+  data.features.forEach(f => {
+    const u = f.properties.u_values;
+    const v = f.properties.v_values;
+    const wind = Math.sqrt(u*u + v*v);
+    if (wind > maxWind) maxWind = wind;
+  });
+  window.lastWindMax = Math.ceil(maxWind);
+  // Aggiorna la scala se il tipo selezionato è wind
+  if(document.querySelector('input[name="forecastType"]:checked').value === 'wind') {
+    updateLegendScale('wind', window.lastWindMax);
+  }
+}
+// Chiama setWindLegendMaxFromData(data) ogni volta che carichi i dati del vento
+// Esempio: dentro loadWind(..., data) aggiungi setWindLegendMaxFromData(data);
+
+// --- Gestione toggle chart/info-box/scala ---
+let chartActive=false
+document.addEventListener('DOMContentLoaded', function() {
+  const chartContainer = document.querySelector('.chart-container');
+  const infoBox = document.querySelector('.info-box');
+  const legendScale = document.getElementById('legend-scale');
+  const toggleChartBtn = document.getElementById('toggleChartBtn');
+   chartActive = false;
+
+  if (chartContainer && infoBox && legendScale && toggleChartBtn) {
+    chartContainer.style.display = 'none'; // di default mostra info-box e scala
+    toggleChartBtn.addEventListener('click', function() {
+      chartActive = !chartActive;
+      if (chartActive) {
+        activateChartView();
+        if (lastChartPoint) {
+          loadChartData(lastChartPoint.lat, lastChartPoint.lng);
+        } else {
+          loadChartData(initial_bounds[0], initial_bounds[1]);
+        }
+        // console.log("Grafico attivo, info-box e scala nascoste.");
+      } else {
+        deactivateChartView();
+        // Se vuoi, puoi anche azzerare lastChartPoint qui:
+        // lastChartPoint = null;
+      }
+    });
+  }
+});
+
+// Funzione globale per attivare la visuale chart in modo coerente
+function activateChartView() {
+  const chartContainer = document.querySelector('.chart-container');
+  const infoBox = document.querySelector('.info-box');
+  const legendScale = document.getElementById('legend-scale');
+  const toggleChartBtn = document.getElementById('toggleChartBtn');
+  if (chartContainer && infoBox && legendScale && toggleChartBtn) {
+    chartContainer.style.display = '';
+    infoBox.style.display = 'none';
+    legendScale.style.visibility = 'hidden';
+    toggleChartBtn.classList.add('active');
+    if (window.hasOwnProperty('chartActive')) chartActive = true;
+  }
+}
+
+// Funzione globale per disattivare la visuale chart
+function deactivateChartView() {
+  const chartContainer = document.querySelector('.chart-container');
+  const infoBox = document.querySelector('.info-box');
+  const legendScale = document.getElementById('legend-scale');
+  const toggleChartBtn = document.getElementById('toggleChartBtn');
+  if (chartContainer && infoBox && legendScale && toggleChartBtn) {
+    chartContainer.style.display = 'none';
+    infoBox.style.display = '';
+    legendScale.style.visibility = 'visible';
+    toggleChartBtn.classList.remove('active');
+    if (window.hasOwnProperty('chartActive')) chartActive = false;
+  }
+}
+
+// Gestione doppio click sulla mappa
+map.on('dblclick', function(e) {
+  const lat = parseFloat(e.latlng.lat.toFixed(2));
+  const lng = parseFloat(e.latlng.lng.toFixed(2));
+  lastChartPoint = { lat, lng };
+  chartActive=true
+  // Attiva la visuale chart in modo centralizzato
+  activateChartView();
+  // Carica il chart per il punto selezionato
+  loadChartData(lat, lng);
+});
+
+// All'avvio, se c'è un valore precedente per lastChartPoint, attiva la visuale chart
+if (lastChartPoint) {
+  activateChartView();
+}
+
+// Genera le etichette solo ogni 24 ore sotto il timeSlider, con la data (es: Mar 17)
+function renderTimeSliderLabels() {
+  const labelsDiv = document.getElementById('timeSliderLabels');
+  if (!labelsDiv) return;
+  let html = '';
+  if (typeof hour_prediction !== 'number' || hour_prediction < 1 || !validDate) {
+    labelsDiv.innerHTML = '';
+    return;
+  }
+  // validDate formato YYYYMMDD
+  const year = parseInt(validDate.slice(0, 4));
+  const month = parseInt(validDate.slice(4, 6)) - 1; // JS: 0=Gen
+  const day = parseInt(validDate.slice(6, 8));
+  for (let i = 0; i < hour_prediction; i += 24) {
+    const date = new Date(year, month, day + Math.floor(i/24));
+    const label = date.toLocaleDateString('it-IT', { month: 'short', day: '2-digit' });
+    html += `<span style="position:absolute;left:${(i/(hour_prediction-1))*100}%;transform:translateX(-50%);font-size:0.85em;">${label.charAt(0).toUpperCase() + label.slice(1)}</span>`;
+  }
+  labelsDiv.innerHTML = html;
+  labelsDiv.style.position = 'relative';
+  labelsDiv.style.height = '1.2em';
+}
+
+document.addEventListener('DOMContentLoaded', renderTimeSliderLabels);
+// Aggiorna le etichette quando cambia hour_prediction
+function updateTimeSliderLabelsOnConfig() {
+  renderTimeSliderLabels();
+}
+// Chiamare updateTimeSliderLabelsOnConfig() dopo aver settato hour_prediction da config.json
