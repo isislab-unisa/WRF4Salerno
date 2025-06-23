@@ -565,7 +565,7 @@ input[type="radio"]:checked + .icon-label {
 @media (max-width: 700px) {
   .legend-scale {
     right: 8px;
-    bottom: 70px;
+    bottom: 110px;
     min-width: 60px;
     max-width: 90px;
     padding: 8px 8px 6px 8px;

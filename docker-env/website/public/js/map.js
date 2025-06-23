@@ -8,11 +8,13 @@ let initial_zoom = null;
 let validDate = null;
 let validRuntime = null;
 let endhour = null;
+let wind_max = null; // Variabile per il massimo valore del vento (m/s)
 
 // Variabile globale per l'ultimo punto selezionato con doppio click
 let lastChartPoint = null;
 
 const samplingRate = 5; // Cambia questo valore per regolare il sampling (es. ogni 5 elementi)
+
 
 // LOADING MAP
 // Initialize the map
@@ -101,28 +103,18 @@ function loadForecastHelper(data) {
     loadRain( time, bounds, data);
   }
 
-  // map.setMaxBounds(bounds);
-  // const bounds = [
-  //   [39.5, 13.5], // Sud-Ovest (latitudine, longitudine)
-  //   [41.5, 16.5], // Nord-Est (latitudine, longitudine)
-  // ];
-  // map.setMaxBounds(bounds);
-
-  // Calcola il centro dei bounds
-  // const centerLat = (minLat + maxLat) / 2;
-  // const centerLng = (minLng + maxLng) / 2;
-  // map.setView([centerLat, centerLng]);
-
-  // Impedisci lo scorrimento oltre i limiti
-  // map.on("drag", function () {
-  //   map.panInsideBounds(bounds, { animate: false });
-  // });
 }
 
 function loadForecast() {
   const time = document.getElementById("timeSlider").value;
   $.getJSON("json/output_"+time+".geojson", function (data) {
     loadForecastHelper(data);
+
+    // calcola il wind max se il tipo di previsione è vento in kt
+    if (document.querySelector('input[name="forecastType"]:checked').value === 'wind') {
+      setWindLegendMaxFromData(data);
+    }
+
     // Se il chart è attivo, aggiorna il grafico e la UI
     const chartContainer = document.querySelector('.chart-container');
     const toggleChartBtn = document.getElementById('toggleChartBtn');
@@ -162,9 +154,9 @@ function loadWidgetInfo(typeofData, data) {
         const u = matchingFeature.properties.u_values;
         const v = matchingFeature.properties.v_values;
         const data = Math.sqrt(u ** 2 + v ** 2);
-        const direction = (Math.atan2(u, v) * 180 / Math.PI + 360) % 360; // direzione in gradi
+        const direction = ((270 - (Math.atan2(v, u) * (180 / Math.PI))) + 360) % 360;             
         const knots = data * 1.94384; // 1 m/s = 1.94384 knot
-        const info = `Lat: ${lat}, Lng: ${lng}, spd: ${data.toFixed(2)} m/s (${knots.toFixed(2)} kt), dir: ${direction.toFixed(0)}°`;
+        const info = `Lat: ${lat}, Lng: ${lng}, spd: ${knots.toFixed(2)} kt, dir: ${direction.toFixed(0)}°`;
         document.getElementById("data").textContent = info;
       } else if (typeofData === "rain") {
         // Mostra info pioggia (rain: istantanea, rain_accum: accumulo totale)
@@ -410,7 +402,8 @@ function loadChartInfo(latitude,longitude,dataForchart,forecastType,numHours){
         const v = matchingFeature[i].v_values;
         const speed = Math.sqrt(u * u + v * v);
         windKnots[i] = speed * 1.94384; // 1 m/s = 1.94384 nodi
-        windDir[i] = (Math.atan2(u, v) * 180 / Math.PI + 360) % 360; // direzione in gradi
+        windDir[i] =  ((270 - (Math.atan2(v, u) * (180 / Math.PI))) + 360) % 360;  
+      
       }
       chartData.datasets.push({
         label: `Punto Selezionato: ${latitude},${longitude}`,
@@ -484,7 +477,37 @@ function loadChartInfo(latitude,longitude,dataForchart,forecastType,numHours){
     });    
 
   } else {
-    console.log("Nessuna feature trovata per le coordinate:", latitude, longitude);
+    // Mostra un chart vuoto con messaggio
+    const ctx = document.getElementById('infoChart').getContext('2d');
+    if (window.chartInstance) {
+      window.chartInstance.destroy();
+      window.chartInstance = null;
+    }
+    window.chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: []
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Nessun dato trovato',
+            color: '#888',
+            font: { size: 18, weight: 'bold' }
+          },
+          tooltip: { enabled: false }
+        },
+        scales: {
+          x: { display: false },
+          y: { display: false }
+        }
+      }
+    });
   }
 
 }
@@ -516,10 +539,10 @@ $.getJSON("json/config.json", function (config) {
           // Genera la timeline
           // generateTimeline(validDate, config.hour_prediction);
           setTime(document.querySelector("#timeSlider").value,validDate, config.hour_prediction);
-          
+          updateTimeSliderLabelsOnConfig();
+
         })
 
-        updateTimeSliderLabelsOnConfig(); // Aggiorna le etichette del timeSlider
 
         document.title = `MeteoSuMisura ${area}`;
 
@@ -712,8 +735,6 @@ function setWindLegendMaxFromData(data) {
     updateLegendScale('wind', window.lastWindMax);
   }
 }
-// Chiama setWindLegendMaxFromData(data) ogni volta che carichi i dati del vento
-// Esempio: dentro loadWind(..., data) aggiungi setWindLegendMaxFromData(data);
 
 // --- Gestione toggle chart/info-box/scala ---
 let chartActive=false
@@ -738,8 +759,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // console.log("Grafico attivo, info-box e scala nascoste.");
       } else {
         deactivateChartView();
-        // Se vuoi, puoi anche azzerare lastChartPoint qui:
-        // lastChartPoint = null;
       }
     });
   }
@@ -775,22 +794,45 @@ function deactivateChartView() {
   }
 }
 
-// Gestione doppio click sulla mappa
-map.on('dblclick', function(e) {
-  const lat = parseFloat(e.latlng.lat.toFixed(2));
-  const lng = parseFloat(e.latlng.lng.toFixed(2));
-  lastChartPoint = { lat, lng };
-  chartActive=true
-  // Attiva la visuale chart in modo centralizzato
+// Funzione per gestire la selezione del punto
+function handleChartPoint(lat, lng) {
+  const latFixed = parseFloat(lat.toFixed(2));
+  const lngFixed = parseFloat(lng.toFixed(2));
+  lastChartPoint = { lat: latFixed, lng: lngFixed };
+  chartActive = true;
   activateChartView();
-  // Carica il chart per il punto selezionato
-  loadChartData(lat, lng);
+  loadChartData(latFixed, lngFixed);
+}
+
+// Doppio click per desktop/tablet
+map.on('dblclick', function(e) {
+  if (!('ontouchstart' in window)) {
+    handleChartPoint(e.latlng.lat, e.latlng.lng);
+  }
 });
 
-// All'avvio, se c'è un valore precedente per lastChartPoint, attiva la visuale chart
-if (lastChartPoint) {
-  activateChartView();
+// Long press per mobile
+if ('ontouchstart' in window) {
+  let pressTimer = null;
+
+  map.on('mousedown touchstart', function(e) {
+    pressTimer = setTimeout(function() {
+      // Solo se è un touch event
+      if (e.latlng) {
+        handleChartPoint(e.latlng.lat, e.latlng.lng);
+      }
+    }, 600); // 600ms = long press
+  });
+
+  map.on('mouseup touchend', function(e) {
+    clearTimeout(pressTimer);
+  });
 }
+
+// All'avvio, se c'è un valore precedente per lastChartPoint, attiva la visuale chart
+// if (lastChartPoint) {
+//   activateChartView();
+// }
 
 // Genera le etichette solo ogni 24 ore sotto il timeSlider, con la data (es: Mar 17)
 function renderTimeSliderLabels() {
@@ -812,10 +854,11 @@ function renderTimeSliderLabels() {
   }
   labelsDiv.innerHTML = html;
   labelsDiv.style.position = 'relative';
-  labelsDiv.style.height = '1.2em';
+  labelsDiv.style.height = '0.4em';
 }
 
-// renderTimeSliderLabels(); // Inizializza le etichette al caricamento della pagina
+renderTimeSliderLabels(); // Inizializza le etichette al caricamento della pagina
+
 // Aggiorna le etichette quando cambia hour_prediction
 function updateTimeSliderLabelsOnConfig() {
   renderTimeSliderLabels();
