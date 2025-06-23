@@ -815,7 +815,7 @@ function renderTimeSliderLabels() {
   labelsDiv.style.height = '1.2em';
 }
 
-document.addEventListener('DOMContentLoaded', renderTimeSliderLabels);
+// renderTimeSliderLabels(); // Inizializza le etichette al caricamento della pagina
 // Aggiorna le etichette quando cambia hour_prediction
 function updateTimeSliderLabelsOnConfig() {
   renderTimeSliderLabels();
