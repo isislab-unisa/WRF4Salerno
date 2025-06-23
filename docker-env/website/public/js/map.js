@@ -649,9 +649,10 @@ function updateLegendScale(type, windMax = 30) {
     bar = 'linear-gradient(90deg, #00c3ff 0%, #ffff1c 50%, #ff0000 100%)';
     barClass = '';
   } else if (type === 'wind') {
-    title = 'Vento (m/s)';
+    // Conversione m/s -> nodi (kt)
+    title = 'Vento (kt)';
     min = '0';
-    max = windMax.toString();
+    max = Math.round(windMax * 1.94384).toString();
     bar = 'linear-gradient(90deg, #440154 0%, #31688e 25%, #35b779 50%, #fde725 100%)'; // viridis
     barClass = 'viridis';
   } else if (type === 'rain') {
